@@ -237,7 +237,7 @@ export default function Hero() {
 					transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
 					style={HEADLINE_TYPE}
 				>
-					Bags crafted
+					Style crafted
 				</motion.div>
 				<motion.div
 					initial={{ opacity: 0, filter: "blur(14px)" }}
@@ -245,7 +245,7 @@ export default function Hero() {
 					transition={{ duration: 0.8, ease: "easeOut", delay: 0.28 }}
 					style={HEADLINE_TYPE}
 				>
-					to move with
+					for every you
 				</motion.div>
 				<div
 					style={{
@@ -256,7 +256,7 @@ export default function Hero() {
 					}}
 				>
 					<SerifGlowWord
-						word="your"
+						word="shirts"
 						fontSize={94.969}
 						lineHeight={93.413}
 						letterSpacing={-3.799}
@@ -269,15 +269,15 @@ export default function Hero() {
 						transition={{ duration: 0.7, ease: "easeOut", delay: 0.78 }}
 						style={{ ...HEADLINE_TYPE, display: "inline-block" }}
 					>
-						story
+						& more
 					</motion.span>
 				</div>
 			</div>
 
 			{/* Woman model */}
 			<motion.img
-				src={asset("woman.png")}
-				alt="Model holding a bag"
+				src={asset("man.png")}
+				alt="Model wearing stylish outfit"
 				initial={{ opacity: 0, y: 80 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 1.1, ease: EASE_SMOOTH, delay: 0.2 }}
@@ -449,7 +449,7 @@ export default function Hero() {
 				}}
 			/>
 
-			{/* "elegance" sticker */}
+			{/* "style" sticker */}
 			<div
 				style={{
 					position: "absolute",
@@ -460,7 +460,7 @@ export default function Hero() {
 				}}
 			>
 				<SerifGlowWord
-					word="elegance"
+					word="style"
 					fontSize={32}
 					lineHeight={31}
 					letterSpacing={-1.2}
