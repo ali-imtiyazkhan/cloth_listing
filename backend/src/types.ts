@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+
 export type JobStatus = 'queued' | 'processing' | 'done' | 'failed';
 
 export interface TryOnJob {
@@ -41,4 +43,13 @@ export interface UpdateClothItemDto {
   category?: string;
   imageUrl?: string;
   clothImagePath?: string;
+}
+
+export function toClothItem(item: { price: Prisma.Decimal; createdAt: Date; updatedAt: Date } & Omit<ClothItem, 'price' | 'createdAt' | 'updatedAt'>): ClothItem {
+  return {
+    ...item,
+    price: Number(item.price),
+    createdAt: item.createdAt.toISOString(),
+    updatedAt: item.updatedAt.toISOString(),
+  };
 }

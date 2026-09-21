@@ -17,6 +17,7 @@ export const config = {
   redis: {
     url: process.env.REDIS_URL || 'redis://localhost:6379',
   },
+  databaseUrl: process.env.DATABASE_URL || 'postgresql://tryon:tryon@localhost:5432/tryon',
   outputDir: process.env.OUTPUT_DIR || './generated',
   dummyImagePath: process.env.DUMMY_IMAGE_PATH || './assets/dummy.png',
 };

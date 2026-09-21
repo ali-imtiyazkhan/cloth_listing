@@ -8,7 +8,7 @@ import statusRoute from './routes/statusRoute.js';
 import adminRoute from './routes/adminRoute.js';
 import { disconnectProducer } from './queue/producer.js';
 import { closeRedis } from './services/redisService.js';
-import { closeItemRedis } from './services/itemService.js';
+import { closePrisma } from './db/prisma.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GENERATED_DIR = path.resolve(__dirname, '../../', config.outputDir);
@@ -33,7 +33,7 @@ app.get('/health', (_req, res) => {
 async function start(): Promise<void> {
   const fs = await import('fs/promises');
   await fs.mkdir(GENERATED_DIR, { recursive: true });
-  
+
   app.listen(config.port, () => {
     console.log(`API server running on http://localhost:${config.port}`);
   });
@@ -43,7 +43,7 @@ process.on('SIGTERM', async () => {
   console.log('Shutting down...');
   await disconnectProducer();
   await closeRedis();
-  await closeItemRedis();
+  await closePrisma();
   process.exit(0);
 });
 
