@@ -37,14 +37,6 @@ const END: Array<[number, number, number]> = [
 
 const OFF = [0, 0.015, 0.03, 0.045, 0.06, 0.075];
 
-const CATEGORIES = [
-  { id: "shirts", label: "Shirts", icon: "👕", count: 24, color: "#B5482A" },
-  { id: "jeans", label: "Jeans", icon: "👖", count: 18, color: "#2A6BB5" },
-  { id: "trousers", label: "Trousers", icon: "👖", count: 15, color: "#2AB57A" },
-  { id: "lower", label: "Lower Garments", icon: "🩳", count: 12, color: "#B58A2A" },
-  { id: "undergarments", label: "Undergarments", icon: "👙", count: 20, color: "#8A2AB5" },
-];
-
 function PhotoCard({
   index,
   scrollYProgress,
@@ -458,99 +450,6 @@ export default function Collection() {
               <br />
               <span style={{ color: "#EAFE79" }}>Range</span>
             </h2>
-          </div>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: 24,
-          }}>
-            {CATEGORIES.map((cat, i) => (
-              <motion.div
-                key={cat.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 + i * 0.1 }}
-                style={{ pointerEvents: "auto" }}
-              >
-                <Link
-                  to={`/tryon?category=${cat.id}`}
-                  style={{
-                    display: "block",
-                    padding: "40px 32px",
-                    background: "rgba(255,255,255,0.02)",
-                    border: "1px solid rgba(255,255,255,0.06)",
-                    borderRadius: 0,
-                    textDecoration: "none",
-                    color: "inherit",
-                    transition: "border-color 0.2s, background 0.2s, transform 0.2s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = cat.color;
-                    e.currentTarget.style.background = `rgba(${parseInt(cat.color.slice(1,3),16)}, ${parseInt(cat.color.slice(3,5),16)}, ${parseInt(cat.color.slice(5,7),16)}, 0.08)`;
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
-                    e.currentTarget.style.background = "rgba(255,255,255,0.02)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
-                >
-                  <div style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    textAlign: "center",
-                    gap: 16,
-                  }}>
-                    <div style={{
-                      width: 80,
-                      height: 80,
-                      borderRadius: "50%",
-                      background: `rgba(${parseInt(cat.color.slice(1,3),16)}, ${parseInt(cat.color.slice(3,5),16)}, ${parseInt(cat.color.slice(5,7),16)}, 0.15)`,
-                      border: `1px solid ${cat.color}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 32,
-                    }}>
-                      {cat.icon}
-                    </div>
-                    <div>
-                      <div style={{
-                        fontFamily: "'Inter Tight', sans-serif",
-                        fontSize: 20,
-                        fontWeight: 600,
-                        letterSpacing: "-0.3px",
-                        color: "#FFFFFF",
-                      }}>
-                        {cat.label}
-                      </div>
-                      <div style={{
-                        marginTop: 4,
-                        fontFamily: "'Inter', sans-serif",
-                        fontSize: 13,
-                        color: "rgba(255,255,255,0.4)",
-                      }}>
-                        {cat.count} items
-                      </div>
-                    </div>
-                    <div style={{
-                      marginTop: 8,
-                      fontFamily: "'Inter Tight', sans-serif",
-                      fontSize: 11,
-                      fontWeight: 500,
-                      letterSpacing: "2px",
-                      color: cat.color,
-                      textTransform: "uppercase",
-                    }}>
-                      Try On →
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
           </div>
 
           <div style={{
