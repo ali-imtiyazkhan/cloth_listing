@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import SerifGlowWord from "../components/SerifGlowWord";
-import { asset, TEXT_COLOR } from "../lib/constants";
+import { asset, TEXT_COLOR, GLOW_COLOR } from "../lib/constants";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 const EASE_BACK = [0.34, 1.56, 0.64, 1] as const;
@@ -131,22 +132,78 @@ export default function Hero() {
 					gap: 32,
 				}}
 			>
-				{["Catalog", "Favorites", "Cart (0)"].map((link) => (
-					<a
-						key={link}
-						href="#"
-						className="transition-opacity duration-200 hover:opacity-60"
-						style={{
-							fontFamily: "'Inter Tight', sans-serif",
-							fontSize: 14,
-							fontWeight: 400,
-							color: TEXT_COLOR,
-							textDecoration: "none",
-						}}
-					>
-						{link}
-					</a>
-				))}
+				<Link
+					to="/"
+					style={{
+						fontFamily: "'Inter Tight', sans-serif",
+						fontSize: 14,
+						fontWeight: 400,
+						color: TEXT_COLOR,
+						textDecoration: "none",
+						opacity: 0.6,
+						transition: "opacity 0.2s",
+					}}
+					onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+					onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+				>
+					Catalog
+				</Link>
+				<Link
+					to="/favorites"
+					style={{
+						fontFamily: "'Inter Tight', sans-serif",
+						fontSize: 14,
+						fontWeight: 400,
+						color: TEXT_COLOR,
+						textDecoration: "none",
+						opacity: 0.6,
+						transition: "opacity 0.2s",
+					}}
+					onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+					onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+				>
+					Favorites
+				</Link>
+				<Link
+					to="/cart"
+					style={{
+						fontFamily: "'Inter Tight', sans-serif",
+						fontSize: 14,
+						fontWeight: 400,
+						color: TEXT_COLOR,
+						textDecoration: "none",
+						opacity: 0.6,
+						transition: "opacity 0.2s",
+					}}
+					onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
+					onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+				>
+					Cart (0)
+				</Link>
+				<Link
+					to="/tryon"
+					style={{
+						fontFamily: "'Inter Tight', sans-serif",
+						fontSize: 14,
+						fontWeight: 600,
+						color: "#1C1B19",
+						textDecoration: "none",
+						padding: "10px 20px",
+						background: GLOW_COLOR,
+						borderRadius: 0,
+						transition: "background 0.2s, color 0.2s",
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.background = "#1C1B19";
+						e.currentTarget.style.color = GLOW_COLOR;
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.background = GLOW_COLOR;
+						e.currentTarget.style.color = "#1C1B19";
+					}}
+				>
+					Try On
+				</Link>
 				<button
 					type="button"
 					aria-label="Menu"

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { submitTryOnJob, getJobStatus, resultImageUrl } from "../lib/api";
-import { asset, TEXT_COLOR, GLOW_COLOR } from "../lib/constants";
+import { TEXT_COLOR, GLOW_COLOR } from "../lib/constants";
 
 const CATEGORIES = [
   { id: "shirts", label: "Shirts", icon: "👕", count: 24 },
@@ -13,12 +13,17 @@ const CATEGORIES = [
 ];
 
 export default function TryOn() {
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
+    document.head.appendChild(style);
+    return () => { document.head.removeChild(style); };
+  }, []);
   const [step, setStep] = useState<"upload" | "processing" | "result">("upload");
   const [clothFile, setClothFile] = useState<File | null>(null);
   const [dummyFile, setDummyFile] = useState<File | null>(null);
   const [clothPreview, setClothPreview] = useState<string | null>(null);
   const [dummyPreview, setDummyPreview] = useState<string | null>(null);
-  const [jobId, setJobId] = useState<string | null>(null);
   const [status, setStatus] = useState<"queued" | "processing" | "done" | "failed">("queued");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +74,6 @@ export default function TryOn() {
     setStatus("queued");
     try {
       const { jobId: newJobId } = await submitTryOnJob(clothFile, dummyFile);
-      setJobId(newJobId);
       startPolling(newJobId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -116,7 +120,6 @@ export default function TryOn() {
     setDummyFile(null);
     setClothPreview(null);
     setDummyPreview(null);
-    setJobId(null);
     setStatus("queued");
     setResultUrl(null);
     setError(null);
@@ -346,7 +349,7 @@ export default function TryOn() {
               </span>
               <h1 style={{
                 fontFamily: "'Inter Tight', sans-serif",
-                fontSize: clamp(40, 6vw, 72),
+                fontSize: "clamp(40px, 6vw, 72px)",
                 fontWeight: 700,
                 lineHeight: 1.1,
                 letterSpacing: "-3px",
@@ -512,11 +515,6 @@ export default function TryOn() {
                     borderRadius: "50%",
                     animation: "spin 1s linear infinite",
                   }} />
-                  <style jsx global>{`
-                    @keyframes spin {
-                      to { transform: rotate(360deg); }
-                    }
-                  `}</style>
                   <h2 style={{
                     fontFamily: "'Inter Tight', sans-serif",
                     fontSize: 28,

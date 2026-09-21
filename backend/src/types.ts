@@ -3,6 +3,7 @@ export type JobStatus = 'queued' | 'processing' | 'done' | 'failed';
 export interface TryOnJob {
   jobId: string;
   clothImagePath: string;
+  dummyImagePath: string;
   createdAt: string;
 }
 

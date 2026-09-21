@@ -1,5 +1,5 @@
-import Collection from "../sections/Collection";
 import Hero from "../sections/Hero";
+import Collection from "../sections/Collection";
 import PerfectMatch from "../sections/PerfectMatch";
 
 /**

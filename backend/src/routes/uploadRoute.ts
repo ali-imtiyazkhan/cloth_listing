@@ -36,19 +36,25 @@ const upload = multer({
 
 const router = Router();
 
-router.post('/api/tryon', upload.single('cloth') as any, async (req: Request, res: Response) => {
-  const file = req.file;
+router.post('/api/tryon', upload.fields([{ name: 'cloth', maxCount: 1 }, { name: 'dummy', maxCount: 1 }]) as any, async (req: Request, res: Response) => {
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
   
-  if (!file) {
+  if (!files?.cloth?.[0]) {
     return res.status(400).json({ error: 'Cloth image is required' });
   }
+  if (!files?.dummy?.[0]) {
+    return res.status(400).json({ error: 'Dummy/Model image is required' });
+  }
+
+  const clothFile = files.cloth[0];
+  const dummyFile = files.dummy[0];
 
   const jobId = uuidv4();
-  const clothImagePath = file.path;
 
   const job: TryOnJob = {
     jobId,
-    clothImagePath,
+    clothImagePath: clothFile.path,
+    dummyImagePath: dummyFile.path,
     createdAt: new Date().toISOString(),
   };
 
