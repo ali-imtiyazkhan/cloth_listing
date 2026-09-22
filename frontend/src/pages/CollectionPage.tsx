@@ -154,7 +154,7 @@ export default function CollectionPage() {
         color: TEXT_COLOR,
         fontFamily: "'Inter Tight', system-ui, sans-serif",
         position: "relative",
-        overflowX: "hidden",
+        overflowX: "clip",
       }}
     >
       <AdminModal
