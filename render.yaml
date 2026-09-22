@@ -1,10 +1,4 @@
 services:
-  # PostgreSQL Database
-  - type: pserv
-    name: tryon-db
-    plan: free
-    region: oregon
-
   # Backend Web Service
   - type: web
     name: tryon-backend
