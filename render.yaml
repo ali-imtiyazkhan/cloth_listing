@@ -4,7 +4,6 @@ services:
     name: tryon-db
     plan: free
     region: oregon
-    ipAllowList: []
 
   # Backend Web Service
   - type: web
