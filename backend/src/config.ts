@@ -21,4 +21,9 @@ export const config = {
   outputDir: process.env.OUTPUT_DIR || './generated',
   dummyImagePath: process.env.DUMMY_IMAGE_PATH || './assets/dummy.png',
   adminApiKey: process.env.ADMIN_API_KEY || 'your_admin_secret_key_here',
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+    apiKey: process.env.CLOUDINARY_API_KEY || '',
+    apiSecret: process.env.CLOUDINARY_API_SECRET || '',
+  },
 };

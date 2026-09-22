@@ -1,8 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import multer from 'multer';
-import * as path from 'path';
-import * as fs from 'fs/promises';
-import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import { 
   createItem, 
@@ -13,23 +10,10 @@ import {
 } from '../services/itemService.js';
 import { CreateClothItemDto, UpdateClothItemDto } from '../types.js';
 import { config } from '../config.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_DIR = path.resolve(__dirname, '../../uploads');
-
-const storage = multer.diskStorage({
-  destination: async (_req, _file, cb) => {
-    await fs.mkdir(UPLOAD_DIR, { recursive: true });
-    cb(null, UPLOAD_DIR);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    cb(null, `${uuidv4()}${ext}`);
-  },
-});
+import { uploadImage, deleteImage, getOptimizedImageUrl } from '../services/cloudinaryService.js';
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) {
@@ -90,16 +74,21 @@ router.post('/items', upload.single('image') as any, async (req: Request, res: R
       return void res.status(400).json({ error: 'Image is required' });
     }
     
-    const clothImagePath = file.path;
-    const imageUrl = `/uploads/${path.basename(file.path)}`;
+    const publicId = `item-${uuidv4()}`;
+    const uploadResult = await uploadImage(file.buffer, {
+      folder: 'tryon/items',
+      publicId,
+    });
     
+    const imageUrl = getOptimizedImageUrl(uploadResult.publicId);
+
     const itemData: CreateClothItemDto = {
       name,
       description,
       price: parseFloat(price),
       category,
       imageUrl,
-      clothImagePath,
+      clothImagePath: uploadResult.publicId,
     };
     
     const item = await createItem(itemData);
@@ -114,6 +103,11 @@ router.put('/items/:id', upload.single('image') as any, async (req: Request, res
     const file = req.file;
     const { name, description, price, category } = req.body;
     
+    const existingItem = await getItem(req.params.id);
+    if (!existingItem) {
+      return void res.status(404).json({ error: 'Item not found' });
+    }
+
     const updateData: UpdateClothItemDto = {};
     if (name) updateData.name = name;
     if (description) updateData.description = description;
@@ -121,8 +115,17 @@ router.put('/items/:id', upload.single('image') as any, async (req: Request, res
     if (category) updateData.category = category;
     
     if (file) {
-      updateData.clothImagePath = file.path;
-      updateData.imageUrl = `/uploads/${path.basename(file.path)}`;
+      const publicId = `item-${uuidv4()}`;
+      const uploadResult = await uploadImage(file.buffer, {
+        folder: 'tryon/items',
+        publicId,
+      });
+      updateData.clothImagePath = uploadResult.publicId;
+      updateData.imageUrl = getOptimizedImageUrl(uploadResult.publicId);
+      
+      if (existingItem.clothImagePath) {
+        await deleteImage(existingItem.clothImagePath).catch(() => {});
+      }
     }
     
     const item = await updateItem(req.params.id, updateData);
@@ -138,6 +141,15 @@ router.put('/items/:id', upload.single('image') as any, async (req: Request, res
 
 router.delete('/items/:id', async (req: Request, res: Response) => {
   try {
+    const existingItem = await getItem(req.params.id);
+    if (!existingItem) {
+      return void res.status(404).json({ error: 'Item not found' });
+    }
+    
+    if (existingItem.clothImagePath) {
+      await deleteImage(existingItem.clothImagePath).catch(() => {});
+    }
+    
     const deleted = await deleteItem(req.params.id);
     if (!deleted) {
       return void res.status(404).json({ error: 'Item not found' });

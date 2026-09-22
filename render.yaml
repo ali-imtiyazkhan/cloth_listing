@@ -1,0 +1,121 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: tryon-db
+    plan: free
+    region: oregon
+    ipAllowList: []
+  
+  # Redis
+  - type: redis
+    name: tryon-redis
+    plan: free
+    region: oregon
+    ipAllowList: []
+    maxmemoryPolicy: allkeys-lru
+
+  # Backend Web Service
+  - type: web
+    name: tryon-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install && npm run db:generate && npm run build
+    startCommand: npm run start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "10000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tryon-db
+          property: connectionString
+      - key: REDIS_URL
+        fromDatabase:
+          name: tryon-redis
+          property: connectionString
+      - key: FRONTEND_ORIGIN
+        value: https://your-frontend.vercel.app
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_IMAGE_MODEL
+        value: gemini-3.1-flash-image
+      - key: KAFKA_BROKERS
+        sync: false
+      - key: KAFKA_USERNAME
+        sync: false
+      - key: KAFKA_PASSWORD
+        sync: false
+      - key: KAFKA_CLIENT_ID
+        value: tryon-app
+      - key: KAFKA_TOPIC
+        value: tryon-jobs
+      - key: KAFKA_GROUP_ID
+        value: tryon-workers
+      - key: ADMIN_API_KEY
+        generateValue: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: OUTPUT_DIR
+        value: ./generated
+      - key: DUMMY_IMAGE_PATH
+        value: ./assets/dummy.png
+
+  # Backend Worker (Background Job Processor)
+  - type: worker
+    name: tryon-worker
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install && npm run db:generate && npm run build
+    startCommand: npm run worker
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tryon-db
+          property: connectionString
+      - key: REDIS_URL
+        fromDatabase:
+          name: tryon-redis
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_IMAGE_MODEL
+        value: gemini-3.1-flash-image
+      - key: KAFKA_BROKERS
+        sync: false
+      - key: KAFKA_USERNAME
+        sync: false
+      - key: KAFKA_PASSWORD
+        sync: false
+      - key: KAFKA_CLIENT_ID
+        value: tryon-app
+      - key: KAFKA_TOPIC
+        value: tryon-jobs
+      - key: KAFKA_GROUP_ID
+        value: tryon-workers
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: DUMMY_IMAGE_PATH
+        value: ./assets/dummy.png
+
+databases:
+  - name: tryon-db
+    databaseName: tryon
+    user: tryon
+    plan: free
+    region: oregon

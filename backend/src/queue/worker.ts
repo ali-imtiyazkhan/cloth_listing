@@ -3,20 +3,16 @@ import { config } from '../config.js';
 import { generateTryOnImage } from '../services/geminiService.js';
 import { setJobStatus } from '../services/redisService.js';
 import { prisma } from '../db/prisma.js';
+import { uploadImage, getImageUrl } from '../services/cloudinaryService.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const OUTPUT_DIR = path.resolve(__dirname, '../../', config.outputDir);
 const DUMMY_IMAGE_PATH = path.resolve(__dirname, '../../', config.dummyImagePath);
 
 const MAX_RETRIES = 3;
 const BASE_RETRY_DELAY_MS = 2000;
-
-async function ensureOutputDir(): Promise<void> {
-  await fs.mkdir(OUTPUT_DIR, { recursive: true });
-}
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -50,13 +46,17 @@ async function processJob(job: { jobId: string; clothImagePath: string }): Promi
   await updateJobStatus(jobId, 'processing');
   
   try {
-    const imageBuffer = await generateTryOnImage(clothImagePath, DUMMY_IMAGE_PATH);
-    await ensureOutputDir();
+    const clothImageUrl = getImageUrl(clothImagePath);
+    const dummyImageUrl = getImageUrl('tryon/dummy');
     
-    const outputPath = path.join(OUTPUT_DIR, `${jobId}.png`);
-    await fs.writeFile(outputPath, imageBuffer);
+    const imageBuffer = await generateTryOnImage(clothImageUrl, dummyImageUrl);
     
-    const resultUrl = `/generated/${jobId}.png`;
+    const uploadResult = await uploadImage(imageBuffer, {
+      folder: 'tryon/results',
+      publicId: `result-${jobId}`,
+    });
+    
+    const resultUrl = uploadResult.url;
     await setJobStatus(jobId, 'done', { resultUrl });
     await updateJobStatus(jobId, 'done', { resultUrl });
   } catch (error) {

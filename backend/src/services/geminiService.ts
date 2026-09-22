@@ -1,6 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { config } from '../config.js';
-import * as fs from 'fs/promises';
 
 const genAI = new GoogleGenerativeAI(config.gemini.apiKey);
 
@@ -13,13 +12,25 @@ Requirements:
 - Output only the composite image of the dummy wearing the garment, no additional text`;
 
 export async function generateTryOnImage(
-  clothImagePath: string,
-  dummyImagePath: string
+  clothImageUrl: string,
+  dummyImageUrl: string
 ): Promise<Buffer> {
-  const [clothBase64, dummyBase64] = await Promise.all([
-    fs.readFile(clothImagePath).then((b) => b.toString('base64')),
-    fs.readFile(dummyImagePath).then((b) => b.toString('base64')),
+  const [clothResponse, dummyResponse] = await Promise.all([
+    fetch(clothImageUrl),
+    fetch(dummyImageUrl),
   ]);
+
+  if (!clothResponse.ok || !dummyResponse.ok) {
+    throw new Error('Failed to fetch images from Cloudinary');
+  }
+
+  const [clothBuffer, dummyBuffer] = await Promise.all([
+    clothResponse.arrayBuffer(),
+    dummyResponse.arrayBuffer(),
+  ]);
+
+  const clothBase64 = Buffer.from(clothBuffer).toString('base64');
+  const dummyBase64 = Buffer.from(dummyBuffer).toString('base64');
 
   const model = genAI.getGenerativeModel({ model: config.gemini.imageModel });
 

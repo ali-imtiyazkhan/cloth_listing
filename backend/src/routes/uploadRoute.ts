@@ -2,31 +2,15 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
 import { v4 as uuidv4 } from 'uuid';
-import * as path from 'path';
-import * as fs from 'fs/promises';
-import { fileURLToPath } from 'url';
 import { enqueueTryOnJob } from '../queue/producer.js';
 import { setJobStatus } from '../services/redisService.js';
 import { TryOnJob } from '../types.js';
 import { config } from '../config.js';
 import { prisma } from '../db/prisma.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_DIR = path.resolve(__dirname, '../../uploads');
-
-const storage = multer.diskStorage({
-  destination: async (_req, _file, cb) => {
-    await fs.mkdir(UPLOAD_DIR, { recursive: true });
-    cb(null, UPLOAD_DIR);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.png';
-    cb(null, `${uuidv4()}${ext}`);
-  },
-});
+import { uploadImage } from '../services/cloudinaryService.js';
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) {
@@ -61,18 +45,22 @@ router.post('/api/tryon', tryonLimiter, upload.single('cloth') as any, async (re
   }
 
   const jobId = uuidv4();
-  const clothImagePath = file.path;
+  
+  const uploadResult = await uploadImage(file.buffer, {
+    folder: 'tryon/uploads',
+    publicId: `cloth-${jobId}`,
+  });
 
   const job: TryOnJob = {
     jobId,
-    clothImagePath,
+    clothImagePath: uploadResult.publicId,
     createdAt: new Date().toISOString(),
   };
 
   await prisma.tryOnJob.create({
     data: {
       jobId,
-      clothImagePath,
+      clothImagePath: uploadResult.publicId,
       status: 'queued',
     },
   });
