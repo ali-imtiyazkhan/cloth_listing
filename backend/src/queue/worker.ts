@@ -81,12 +81,42 @@ async function processJob(job: { jobId: string; clothImagePath: string }): Promi
   }
 }
 
+let isShuttingDown = false;
+
+async function shutdown(signal: string): Promise<void> {
+  if (isShuttingDown) {
+    console.log('Shutdown already in progress...');
+    return;
+  }
+  
+  isShuttingDown = true;
+  console.log(`${signal} received, starting graceful shutdown...`);
+  
+  try {
+    await consumer.disconnect();
+    console.log('Kafka consumer disconnected');
+    
+    await prisma.$disconnect();
+    console.log('Prisma disconnected');
+    
+    console.log('Graceful shutdown complete');
+    process.exit(0);
+  } catch (error) {
+    console.error('Error during shutdown:', error);
+    process.exit(1);
+  }
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
 export async function startWorker(): Promise<void> {
   await consumer.connect();
   await consumer.subscribe({ topic: config.kafka.topic, fromBeginning: false });
   
   await consumer.run({
     eachMessage: async ({ message }: { message: { value: Buffer | null } }) => {
+      if (isShuttingDown) return;
       if (!message.value) return;
       const job = JSON.parse(message.value.toString());
       await processJob(job);
