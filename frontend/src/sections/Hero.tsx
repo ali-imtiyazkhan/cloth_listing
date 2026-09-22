@@ -162,40 +162,6 @@ export default function Hero() {
 				>
 					Collection
 				</Link>
-				<Link
-					className="hide-mobile"
-					to="/favorites"
-					style={{
-						fontFamily: "'Inter Tight', sans-serif",
-						fontSize: 14,
-						fontWeight: 400,
-						color: TEXT_COLOR,
-						textDecoration: "none",
-						opacity: 0.6,
-						transition: "opacity 0.2s",
-					}}
-					onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-					onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}
-				>
-					Favorites
-				</Link>
-				<Link
-					className="hide-mobile"
-					to="/cart"
-					style={{
-						fontFamily: "'Inter Tight', sans-serif",
-						fontSize: 14,
-						fontWeight: 400,
-						color: TEXT_COLOR,
-						textDecoration: "none",
-						opacity: 0.6,
-						transition: "opacity 0.2s",
-					}}
-					onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-					onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}
-				>
-					Cart (0)
-				</Link>
 
 				{isAdmin ? (
 					<>
