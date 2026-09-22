@@ -8,18 +8,19 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT_DIR = path.resolve(__dirname, '../../', config.outputDir);
+const DUMMY_IMAGE_PATH = path.resolve(__dirname, '../../', config.dummyImagePath);
 
 async function ensureOutputDir(): Promise<void> {
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
 }
 
-async function processJob(job: { jobId: string; clothImagePath: string; dummyImagePath: string }): Promise<void> {
-  const { jobId, clothImagePath, dummyImagePath } = job;
+async function processJob(job: { jobId: string; clothImagePath: string }): Promise<void> {
+  const { jobId, clothImagePath } = job;
   
   await setJobStatus(jobId, 'processing');
   
   try {
-    const imageBuffer = await generateTryOnImage(clothImagePath, dummyImagePath);
+    const imageBuffer = await generateTryOnImage(clothImagePath, DUMMY_IMAGE_PATH);
     await ensureOutputDir();
     
     const outputPath = path.join(OUTPUT_DIR, `${jobId}.png`);

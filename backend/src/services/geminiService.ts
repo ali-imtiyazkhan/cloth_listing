@@ -4,12 +4,13 @@ import * as fs from 'fs/promises';
 
 const genAI = new GoogleGenerativeAI(config.gemini.apiKey);
 
-const PROMPT = `You are a virtual try-on system. Composite the garment from the first image onto the person in the second image.
+const PROMPT = `You are an e-commerce garment visualization system. The first image is a garment/clothing item. The second image is a dummy/skeleton/model figure.
+Your task: Realistically dress the dummy figure in the garment from the first image.
 Requirements:
-- Preserve the garment's exact color, pattern, texture, and any logos/prints
-- Preserve the person's pose, body shape, and background
-- The garment should fit naturally on the person as if they were wearing it
-- Output only the composite image, no additional text`;
+- Preserve the garment's exact color, pattern, texture, fit, and any logos/prints
+- The garment should drape naturally on the dummy's body shape
+- Maintain the dummy's pose and background from the second image
+- Output only the composite image of the dummy wearing the garment, no additional text`;
 
 export async function generateTryOnImage(
   clothImagePath: string,

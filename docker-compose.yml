@@ -38,29 +38,10 @@ services:
     hostname: redis
     container_name: tryon-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"
     command: redis-server --appendonly yes
     volumes:
       - redis-data:/data
 
-  postgres:
-    image: postgres:16-alpine
-    hostname: postgres
-    container_name: tryon-postgres
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: tryon
-      POSTGRES_PASSWORD: tryon
-      POSTGRES_DB: tryon
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tryon -d tryon"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
 volumes:
   redis-data:
-  postgres-data:

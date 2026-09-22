@@ -7,10 +7,9 @@ export interface JobRecord {
   updatedAt: string;
 }
 
-export async function submitTryOnJob(cloth: File, dummy: File): Promise<{ jobId: string }> {
+export async function submitTryOnJob(cloth: File): Promise<{ jobId: string }> {
   const formData = new FormData();
   formData.append('cloth', cloth);
-  formData.append('dummy', dummy);
 
   const res = await fetch(`${API_BASE}/api/tryon`, {
     method: 'POST',

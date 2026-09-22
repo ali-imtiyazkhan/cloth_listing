@@ -5,11 +5,11 @@ import { submitTryOnJob, getJobStatus, resultImageUrl } from "../lib/api";
 import { TEXT_COLOR, GLOW_COLOR } from "../lib/constants";
 
 const CATEGORIES = [
-  { id: "shirts", label: "Shirts", icon: "👕", count: 24 },
-  { id: "jeans", label: "Jeans", icon: "👖", count: 18 },
-  { id: "trousers", label: "Trousers", icon: "👖", count: 15 },
-  { id: "lower", label: "Lower Garments", icon: "🩳", count: 12 },
-  { id: "undergarments", label: "Undergarments", icon: "👙", count: 20 },
+  { id: "shirts", label: "Shirts", count: 24 },
+  { id: "jeans", label: "Jeans", count: 18 },
+  { id: "trousers", label: "Trousers", count: 15 },
+  { id: "lower", label: "Lower Garments", count: 12 },
+  { id: "undergarments", label: "Undergarments", count: 20 },
 ];
 
 export default function TryOn() {
@@ -21,17 +21,14 @@ export default function TryOn() {
   }, []);
   const [step, setStep] = useState<"upload" | "processing" | "result">("upload");
   const [clothFile, setClothFile] = useState<File | null>(null);
-  const [dummyFile, setDummyFile] = useState<File | null>(null);
   const [clothPreview, setClothPreview] = useState<string | null>(null);
-  const [dummyPreview, setDummyPreview] = useState<string | null>(null);
   const [status, setStatus] = useState<"queued" | "processing" | "done" | "failed">("queued");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [polling, setPolling] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dummyInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (file: File | null, type: "cloth" | "dummy") => {
+  const handleFileSelect = (file: File | null) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       setError("Please select an image file");
@@ -43,13 +40,8 @@ export default function TryOn() {
     }
     setError(null);
     const preview = URL.createObjectURL(file);
-    if (type === "cloth") {
-      setClothFile(file);
-      setClothPreview(preview);
-    } else {
-      setDummyFile(file);
-      setDummyPreview(preview);
-    }
+    setClothFile(file);
+    setClothPreview(preview);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -57,23 +49,23 @@ export default function TryOn() {
     e.stopPropagation();
   };
 
-  const handleDrop = (e: React.DragEvent, type: "cloth" | "dummy") => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const file = e.dataTransfer.files[0];
-    handleFileSelect(file, type);
+    handleFileSelect(file);
   };
 
   const handleSubmit = async () => {
-    if (!clothFile || !dummyFile) {
-      setError("Please select both garment and model images");
+    if (!clothFile) {
+      setError("Please select a garment image");
       return;
     }
     setError(null);
     setStep("processing");
     setStatus("queued");
     try {
-      const { jobId: newJobId } = await submitTryOnJob(clothFile, dummyFile);
+      const { jobId: newJobId } = await submitTryOnJob(clothFile);
       startPolling(newJobId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -109,7 +101,6 @@ export default function TryOn() {
     return () => {
       setPolling(false);
       if (clothPreview) URL.revokeObjectURL(clothPreview);
-      if (dummyPreview) URL.revokeObjectURL(dummyPreview);
       if (resultUrl) URL.revokeObjectURL(resultUrl);
     };
   }, []);
@@ -117,14 +108,11 @@ export default function TryOn() {
   const reset = () => {
     setStep("upload");
     setClothFile(null);
-    setDummyFile(null);
     setClothPreview(null);
-    setDummyPreview(null);
     setStatus("queued");
     setResultUrl(null);
     setError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    if (dummyInputRef.current) dummyInputRef.current.value = "";
   };
 
   const UploadWell = ({
@@ -181,7 +169,7 @@ export default function TryOn() {
           type="file"
           accept="image/*"
           style={{ display: "none" }}
-          onChange={(e) => handleFileSelect(e.target.files?.[0] || null, label.toLowerCase() as "cloth" | "dummy")}
+          onChange={(e) => handleFileSelect(e.target.files?.[0] || null)}
         />
         {preview ? (
           <img
@@ -231,14 +219,7 @@ export default function TryOn() {
             whileTap={{ scale: 0.95 }}
             onClick={(e) => {
               e.stopPropagation();
-              handleFileSelect(null, label.toLowerCase() as "cloth" | "dummy");
-              if (label.toLowerCase() === "cloth") {
-                setClothFile(null);
-                setClothPreview(null);
-              } else {
-                setDummyFile(null);
-                setDummyPreview(null);
-              }
+              handleFileSelect(null);
             }}
             style={{
               position: "absolute",
@@ -269,7 +250,7 @@ export default function TryOn() {
         color: "rgba(84,84,84,0.5)",
         textAlign: "center",
       }}>
-        {label === "Garment" ? "Upload the clothing item to try on" : "Upload a model or mannequin photo"}
+        Upload your garment photo for visualization
       </div>
     </motion.div>
   );
@@ -345,7 +326,7 @@ export default function TryOn() {
                 textTransform: "uppercase",
                 marginBottom: 16,
               }}>
-                Virtual Try-On
+                Garment Visualization
               </span>
               <h1 style={{
                 fontFamily: "'Inter Tight', sans-serif",
@@ -356,9 +337,9 @@ export default function TryOn() {
                 color: "#1C1B19",
                 marginBottom: 16,
               }}>
-                See it on
+                See your garment
                 <br />
-                <span style={{ color: "#B5482A" }}>you</span>
+                <span style={{ color: "#B5482A" }}>on display</span>
               </h1>
               <p style={{
                 fontFamily: "'Inter', sans-serif",
@@ -368,8 +349,8 @@ export default function TryOn() {
                 maxWidth: 520,
                 margin: "0 auto",
               }}>
-                Upload a garment and a model photo. Our AI composites the clothing onto the person
-                with photorealistic fit, preserving color, pattern, and texture.
+                Upload a garment photo. Our AI dresses a dummy model with your clothing
+                preserving color, pattern, texture, and fit.
               </p>
             </div>
 
@@ -385,21 +366,11 @@ export default function TryOn() {
                     label="Garment"
                     preview={clothPreview}
                     onClick={() => fileInputRef.current?.click()}
-                    onDrop={(e) => handleDrop(e, "cloth")}
+                    onDrop={handleDrop}
                     onDragOver={handleDragOver}
                     inputRef={fileInputRef}
                   >
                     👕
-                  </UploadWell>
-                  <UploadWell
-                    label="Model"
-                    preview={dummyPreview}
-                    onClick={() => dummyInputRef.current?.click()}
-                    onDrop={(e) => handleDrop(e, "dummy")}
-                    onDragOver={handleDragOver}
-                    inputRef={dummyInputRef}
-                  >
-                    👤
                   </UploadWell>
                 </div>
 
@@ -425,14 +396,14 @@ export default function TryOn() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  disabled={!clothFile || !dummyFile}
+                  disabled={!clothFile}
                   onClick={handleSubmit}
                   style={{
                     width: "100%",
                     maxWidth: 400,
                     margin: "0 auto",
                     padding: "20px 48px",
-                    background: clothFile && dummyFile ? "#1C1B19" : "rgba(28,27,25,0.3)",
+                    background: clothFile ? "#1C1B19" : "rgba(28,27,25,0.3)",
                     border: "1px solid rgba(28,27,25,0.1)",
                     borderRadius: 0,
                     color: "#F7F4EE",
@@ -441,7 +412,7 @@ export default function TryOn() {
                     fontWeight: 600,
                     letterSpacing: "0.5px",
                     textTransform: "uppercase",
-                    cursor: clothFile && dummyFile ? "pointer" : "not-allowed",
+                    cursor: clothFile ? "pointer" : "not-allowed",
                     transition: "background 0.2s, border-color 0.2s",
                   }}
                 >
@@ -473,7 +444,6 @@ export default function TryOn() {
                       onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
                       onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
                     >
-                      <span style={{ fontSize: 28 }}>{cat.icon}</span>
                       <span style={{
                         fontFamily: "'Inter Tight', sans-serif",
                         fontSize: 13,
@@ -582,7 +552,7 @@ export default function TryOn() {
                       fontSize: 15,
                       color: "rgba(28,27,25,0.5)",
                     }}>
-                      The garment has been composited onto the model
+                      The garment has been composited onto the dummy
                     </p>
                   </div>
 
@@ -596,7 +566,7 @@ export default function TryOn() {
                   }}>
                     <img
                       src={resultUrl}
-                      alt="Try-on result"
+                      alt="Garment on dummy result"
                       style={{
                         width: "100%",
                         height: "100%",
