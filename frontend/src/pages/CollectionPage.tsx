@@ -11,10 +11,12 @@ import {
   COLLECTION_ITEMS,
   type GarmentItem,
 } from "../data/collectionData";
+import { useIsMobile } from "../lib/useMediaQuery";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
 export default function CollectionPage() {
+  const isMobile = useIsMobile();
   const { category } = useParams<{ category?: string }>();
   const navigate = useNavigate();
   const { isAdmin } = useAdmin();
@@ -170,54 +172,67 @@ export default function CollectionPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "18px 36px",
-          background: "rgba(238, 234, 227, 0.88)",
+          padding: isMobile ? "12px 16px" : "18px 36px",
+          background: "rgba(238, 234, 227, 0.92)",
           backdropFilter: "blur(18px)",
           borderBottom: "1px solid rgba(84, 84, 84, 0.12)",
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 8 : 14 }}>
           <Link
             to="/"
             style={{
               fontFamily: "'Inter Tight', sans-serif",
-              fontSize: 18,
+              fontSize: isMobile ? 15 : 18,
               fontWeight: 700,
               letterSpacing: "-0.5px",
               color: "#1C1B19",
               textDecoration: "none",
               display: "flex",
               alignItems: "center",
-              gap: 8,
+              gap: 6,
             }}
           >
-            <span style={{ fontSize: 13, opacity: 0.5, letterSpacing: "1px" }}>[STUDIO]</span>
+            <span style={{ fontSize: isMobile ? 10 : 13, opacity: 0.5, letterSpacing: "1px" }}>[STUDIO]</span>
             <span>Fitting Room</span>
           </Link>
-          <span
-            style={{
-              fontFamily: "'Instrument Serif', serif",
-              fontStyle: "italic",
-              fontSize: 15,
-              color: "rgba(84,84,84,0.6)",
-              marginLeft: 4,
-            }}
-          >
-            / Collection 2026
-          </span>
+          {!isMobile && (
+            <span
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontStyle: "italic",
+                fontSize: 15,
+                color: "rgba(84,84,84,0.6)",
+                marginLeft: 4,
+              }}
+            >
+              / Collection 2026
+            </span>
+          )}
         </div>
 
-        <nav style={{ display: "flex", alignItems: "center", gap: 24 }}>
+        <nav
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: isMobile ? 12 : 24,
+            overflowX: isMobile ? "auto" : "visible",
+            scrollbarWidth: "none",
+          }}
+        >
           <Link
             to="/"
             style={{
               fontFamily: "'Inter Tight', sans-serif",
-              fontSize: 14,
+              fontSize: isMobile ? 13 : 14,
               fontWeight: 500,
               color: TEXT_COLOR,
               textDecoration: "none",
               opacity: 0.7,
               transition: "opacity 0.2s",
+              whiteSpace: "nowrap",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
@@ -228,11 +243,12 @@ export default function CollectionPage() {
             to="/collection"
             style={{
               fontFamily: "'Inter Tight', sans-serif",
-              fontSize: 14,
+              fontSize: isMobile ? 13 : 14,
               fontWeight: 700,
               color: "#1C1B19",
               textDecoration: "none",
               position: "relative",
+              whiteSpace: "nowrap",
             }}
           >
             Collection
@@ -251,23 +267,12 @@ export default function CollectionPage() {
           <span
             style={{
               fontFamily: "'Inter Tight', sans-serif",
-              fontSize: 14,
+              fontSize: isMobile ? 13 : 14,
               fontWeight: 500,
               color: TEXT_COLOR,
               opacity: 0.6,
               cursor: "pointer",
-            }}
-          >
-            Favorites ({Object.values(favorites).filter(Boolean).length})
-          </span>
-          <span
-            style={{
-              fontFamily: "'Inter Tight', sans-serif",
-              fontSize: 14,
-              fontWeight: 500,
-              color: TEXT_COLOR,
-              opacity: 0.6,
-              cursor: "pointer",
+              whiteSpace: "nowrap",
             }}
           >
             Cart ({cartCount})
@@ -275,23 +280,24 @@ export default function CollectionPage() {
 
           {/* Conditional Try On & Admin status */}
           {isAdmin ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Link
                 to="/tryon"
                 style={{
                   fontFamily: "'Inter Tight', sans-serif",
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 700,
                   letterSpacing: "0.5px",
                   color: "#1C1B19",
                   textDecoration: "none",
-                  padding: "9px 18px",
+                  padding: isMobile ? "6px 10px" : "9px 18px",
                   background: GLOW_COLOR,
                   border: "1px solid rgba(28,27,25,0.1)",
                   transition: "all 0.2s ease",
                   display: "flex",
                   alignItems: "center",
-                  gap: 6,
+                  gap: 4,
+                  whiteSpace: "nowrap",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "#1C1B19";
@@ -303,20 +309,21 @@ export default function CollectionPage() {
                 }}
               >
                 <span>✦</span>
-                <span>Virtual Try-On</span>
+                <span>Try-On</span>
               </Link>
               <button
                 onClick={() => setAdminModalOpen(true)}
                 style={{
                   fontFamily: "'Inter Tight', sans-serif",
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: 700,
-                  padding: "7px 12px",
+                  padding: "6px 10px",
                   background: "#1C1B19",
                   color: GLOW_COLOR,
                   border: "none",
                   cursor: "pointer",
                   letterSpacing: "0.5px",
+                  whiteSpace: "nowrap",
                 }}
               >
                 Admin Active
@@ -327,14 +334,15 @@ export default function CollectionPage() {
               onClick={() => setAdminModalOpen(true)}
               style={{
                 fontFamily: "'Inter Tight', sans-serif",
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 500,
                 color: "rgba(84,84,84,0.6)",
                 background: "none",
                 border: "none",
                 cursor: "pointer",
                 textDecoration: "underline",
-                padding: "4px 8px",
+                padding: "4px 6px",
+                whiteSpace: "nowrap",
               }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#1C1B19")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(84,84,84,0.6)")}
@@ -348,23 +356,25 @@ export default function CollectionPage() {
       {/* Main Editorial Hero Header */}
       <section
         style={{
-          padding: "70px 48px 40px",
+          padding: isMobile ? "32px 16px 20px" : "70px 48px 40px",
           maxWidth: 1380,
           margin: "0 auto",
           position: "relative",
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
         {/* Editorial Watermark Number */}
         <div
           style={{
             position: "absolute",
-            top: 40,
-            right: 48,
+            top: isMobile ? 16 : 40,
+            right: isMobile ? 16 : 48,
             fontFamily: "'Instrument Serif', serif",
-            fontSize: "clamp(80px, 12vw, 150px)",
+            fontSize: isMobile ? "clamp(48px, 14vw, 72px)" : "clamp(80px, 12vw, 150px)",
             fontWeight: 400,
             lineHeight: 1,
-            color: "rgba(84,84,84,0.08)",
+            color: "rgba(84,84,84,0.06)",
             pointerEvents: "none",
             userSelect: "none",
           }}
@@ -377,10 +387,10 @@ export default function CollectionPage() {
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: 10,
-              padding: "4px 12px",
+              gap: 8,
+              padding: "4px 10px",
               background: "rgba(84,84,84,0.08)",
-              marginBottom: 20,
+              marginBottom: isMobile ? 14 : 20,
               border: "1px solid rgba(84,84,84,0.12)",
             }}
           >
@@ -396,9 +406,9 @@ export default function CollectionPage() {
             <span
               style={{
                 fontFamily: "'Inter Tight', sans-serif",
-                fontSize: 11,
+                fontSize: isMobile ? 10 : 11,
                 fontWeight: 600,
-                letterSpacing: "2.5px",
+                letterSpacing: isMobile ? "1.5px" : "2.5px",
                 textTransform: "uppercase",
                 color: "#1C1B19",
               }}
@@ -410,22 +420,22 @@ export default function CollectionPage() {
           <h1
             style={{
               fontFamily: "'Inter Tight', sans-serif",
-              fontSize: "clamp(44px, 6vw, 76px)",
+              fontSize: isMobile ? "clamp(30px, 7vw, 42px)" : "clamp(44px, 6vw, 76px)",
               fontWeight: 600,
-              lineHeight: 0.98,
-              letterSpacing: "-2.8px",
+              lineHeight: isMobile ? 1.05 : 0.98,
+              letterSpacing: isMobile ? "-1.2px" : "-2.8px",
               color: "#1C1B19",
-              marginBottom: 20,
+              marginBottom: isMobile ? 14 : 20,
             }}
           >
             Curated pieces for your{" "}
             <span style={{ display: "inline-block", verticalAlign: "middle" }}>
               <SerifGlowWord
                 word="wardrobe"
-                fontSize={78}
-                lineHeight={76}
-                letterSpacing={-3}
-                strokeWidth={18}
+                fontSize={isMobile ? 36 : 78}
+                lineHeight={isMobile ? 36 : 76}
+                letterSpacing={isMobile ? -1.5 : -3}
+                strokeWidth={isMobile ? 9 : 18}
                 italic
                 delay={0.2}
               />
@@ -435,9 +445,9 @@ export default function CollectionPage() {
           <p
             style={{
               fontFamily: "'Inter Tight', sans-serif",
-              fontSize: 17,
+              fontSize: isMobile ? 14 : 17,
               fontWeight: 400,
-              lineHeight: 1.65,
+              lineHeight: 1.55,
               color: "rgba(84,84,84,0.85)",
               maxWidth: 620,
             }}
@@ -453,22 +463,23 @@ export default function CollectionPage() {
           style={{
             maxWidth: 1380,
             margin: "0 auto 20px",
-            padding: "0 48px",
+            padding: isMobile ? "0 16px" : "0 48px",
+            boxSizing: "border-box",
           }}
         >
           <div
             style={{
-              padding: "14px 20px",
+              padding: isMobile ? "12px 14px" : "14px 20px",
               background: "#1C1B19",
               color: "#EEEAE3",
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
+              alignItems: isMobile ? "stretch" : "center",
+              flexDirection: isMobile ? "column" : "row",
               gap: 12,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span
                 style={{
                   display: "inline-block",
@@ -482,12 +493,12 @@ export default function CollectionPage() {
               >
                 ADMIN ACCESS
               </span>
-              <span style={{ fontSize: 13, color: "rgba(238,234,227,0.8)" }}>
+              <span style={{ fontSize: isMobile ? 12 : 13, color: "rgba(238,234,227,0.8)" }}>
                 You have permission to upload new garments, delete items, and run virtual try-on.
               </span>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, alignSelf: isMobile ? "flex-end" : "auto" }}>
               <button
                 onClick={() => setAdminModalOpen(true)}
                 style={{
@@ -515,7 +526,7 @@ export default function CollectionPage() {
                   fontWeight: 600,
                 }}
               >
-                Go to Fitting Room →
+                Fitting Room →
               </Link>
             </div>
           </div>
@@ -526,13 +537,15 @@ export default function CollectionPage() {
       <section
         style={{
           position: "sticky",
-          top: 70,
+          top: isMobile ? 52 : 70,
           zIndex: 40,
           background: "rgba(238, 234, 227, 0.95)",
           backdropFilter: "blur(14px)",
           borderTop: "1px solid rgba(84, 84, 84, 0.12)",
           borderBottom: "1px solid rgba(84, 84, 84, 0.12)",
-          padding: "16px 48px",
+          padding: isMobile ? "10px 16px" : "16px 48px",
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
         <div
@@ -542,8 +555,9 @@ export default function CollectionPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: 16,
+            flexDirection: isMobile ? "column" : "row",
+            gap: isMobile ? 10 : 16,
+            width: "100%",
           }}
         >
           {/* Category Tabs */}
@@ -551,9 +565,12 @@ export default function CollectionPage() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 8,
+              gap: 6,
               overflowX: "auto",
               paddingBottom: 4,
+              width: isMobile ? "100%" : "auto",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
             }}
           >
             {COLLECTION_CATEGORIES.map((cat) => {
@@ -567,9 +584,9 @@ export default function CollectionPage() {
                   }}
                   style={{
                     position: "relative",
-                    padding: "8px 18px",
+                    padding: isMobile ? "6px 12px" : "8px 18px",
                     fontFamily: "'Inter Tight', sans-serif",
-                    fontSize: 13,
+                    fontSize: isMobile ? 12 : 13,
                     fontWeight: isActive ? 600 : 500,
                     letterSpacing: "0.2px",
                     color: isActive ? "#1C1B19" : "rgba(84,84,84,0.7)",
@@ -581,8 +598,9 @@ export default function CollectionPage() {
                     transition: "all 0.18s ease",
                     display: "flex",
                     alignItems: "center",
-                    gap: 6,
+                    gap: 5,
                     whiteSpace: "nowrap",
+                    flexShrink: 0,
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
@@ -601,7 +619,7 @@ export default function CollectionPage() {
                   <span
                     style={{
                       fontFamily: "'Instrument Serif', serif",
-                      fontSize: 12,
+                      fontSize: isMobile ? 11 : 12,
                       opacity: isActive ? 0.9 : 0.5,
                     }}
                   >
@@ -613,38 +631,47 @@ export default function CollectionPage() {
           </div>
 
           {/* Search and Sort controls */}
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              width: isMobile ? "100%" : "auto",
+            }}
+          >
             {/* Search Input */}
             <div
               style={{
                 position: "relative",
                 display: "flex",
                 alignItems: "center",
+                flex: isMobile ? 1 : "none",
               }}
             >
               <input
                 type="text"
-                placeholder="Search cut, fabric, name..."
+                placeholder={isMobile ? "Search..." : "Search cut, fabric, name..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
-                  padding: "8px 14px 8px 32px",
+                  padding: isMobile ? "7px 12px 7px 28px" : "8px 14px 8px 32px",
                   background: "#F8F6F1",
                   border: "1px solid rgba(84,84,84,0.2)",
                   fontFamily: "'Inter Tight', sans-serif",
-                  fontSize: 13,
+                  fontSize: isMobile ? 12 : 13,
                   color: "#1C1B19",
                   outline: "none",
-                  width: 220,
+                  width: isMobile ? "100%" : 220,
+                  boxSizing: "border-box",
                   transition: "border-color 0.2s, width 0.2s",
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = "#1C1B19";
-                  e.currentTarget.style.width = "260px";
+                  if (!isMobile) e.currentTarget.style.width = "260px";
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = "rgba(84,84,84,0.2)";
-                  e.currentTarget.style.width = "220px";
+                  if (!isMobile) e.currentTarget.style.width = "220px";
                 }}
               />
               <span
@@ -681,20 +708,21 @@ export default function CollectionPage() {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
               style={{
-                padding: "8px 12px",
+                padding: isMobile ? "7px 8px" : "8px 12px",
                 background: "#F8F6F1",
                 border: "1px solid rgba(84,84,84,0.2)",
                 fontFamily: "'Inter Tight', sans-serif",
-                fontSize: 13,
+                fontSize: isMobile ? 11 : 13,
                 color: "#1C1B19",
                 outline: "none",
                 cursor: "pointer",
+                flexShrink: 0,
               }}
             >
-              <option value="featured">Sort: Featured</option>
-              <option value="newest">Sort: Newest First</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
+              <option value="featured">Featured</option>
+              <option value="newest">Newest</option>
+              <option value="price-asc">Price: Low-High</option>
+              <option value="price-desc">Price: High-Low</option>
             </select>
           </div>
         </div>
@@ -705,7 +733,9 @@ export default function CollectionPage() {
         style={{
           maxWidth: 1380,
           margin: "0 auto",
-          padding: "48px 48px 90px",
+          padding: isMobile ? "20px 16px 60px" : "48px 48px 90px",
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
         {/* Results counter metadata */}
@@ -714,16 +744,18 @@ export default function CollectionPage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: 32,
+            flexWrap: "wrap",
+            gap: 8,
+            marginBottom: isMobile ? 18 : 32,
             borderBottom: "1px solid rgba(84,84,84,0.1)",
-            paddingBottom: 14,
+            paddingBottom: 12,
           }}
         >
-          <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
             <span
               style={{
                 fontFamily: "'Inter Tight', sans-serif",
-                fontSize: 13,
+                fontSize: isMobile ? 11 : 13,
                 fontWeight: 600,
                 letterSpacing: "1px",
                 textTransform: "uppercase",
@@ -737,7 +769,7 @@ export default function CollectionPage() {
                 style={{
                   fontFamily: "'Instrument Serif', serif",
                   fontStyle: "italic",
-                  fontSize: 15,
+                  fontSize: isMobile ? 13 : 15,
                   color: "#B5482A",
                 }}
               >
@@ -749,14 +781,14 @@ export default function CollectionPage() {
           <div
             style={{
               fontFamily: "'Inter Tight', sans-serif",
-              fontSize: 12,
+              fontSize: isMobile ? 10 : 12,
               color: "rgba(84,84,84,0.6)",
               letterSpacing: "0.5px",
             }}
           >
             {isAdmin ? (
               <span style={{ color: "#1C1B19", fontWeight: 600 }}>
-                ✦ ADMIN MODE: TRY ON & INVENTORY CONTROLS ENABLED
+                ✦ ADMIN MODE ACTIVE
               </span>
             ) : (
               <span>AUTUMN / WINTER 2026 ARCHIVE</span>
@@ -768,7 +800,7 @@ export default function CollectionPage() {
         {filteredItems.length === 0 && (
           <div
             style={{
-              padding: "100px 20px",
+              padding: isMobile ? "60px 16px" : "100px 20px",
               textAlign: "center",
               background: "#F8F6F1",
               border: "1px dashed rgba(84,84,84,0.2)",
@@ -778,7 +810,7 @@ export default function CollectionPage() {
             <h3
               style={{
                 fontFamily: "'Inter Tight', sans-serif",
-                fontSize: 20,
+                fontSize: isMobile ? 18 : 20,
                 fontWeight: 600,
                 color: "#1C1B19",
                 marginBottom: 8,
@@ -786,7 +818,7 @@ export default function CollectionPage() {
             >
               No garments found matching "{searchQuery}"
             </h3>
-            <p style={{ fontSize: 14, color: "rgba(84,84,84,0.6)", marginBottom: 20 }}>
+            <p style={{ fontSize: 13, color: "rgba(84,84,84,0.6)", marginBottom: 20 }}>
               Try adjusting your search query or reset filters.
             </p>
             <button
@@ -814,8 +846,12 @@ export default function CollectionPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(310px, 1fr))",
-            gap: 36,
+            gridTemplateColumns: isMobile
+              ? "1fr"
+              : "repeat(auto-fill, minmax(310px, 1fr))",
+            gap: isMobile ? 24 : 36,
+            justifyItems: "center",
+            width: "100%",
           }}
         >
           {filteredItems.map((item, index) => {
@@ -841,6 +877,10 @@ export default function CollectionPage() {
                   position: "relative",
                   transition: "box-shadow 0.25s ease, border-color 0.25s ease",
                   cursor: "pointer",
+                  width: "100%",
+                  maxWidth: isMobile ? 380 : "none",
+                  margin: "0 auto",
+                  boxSizing: "border-box",
                 }}
                 onClick={() => setSelectedItem(item)}
               >
@@ -1007,7 +1047,7 @@ export default function CollectionPage() {
                 </div>
 
                 {/* Card Content & Details */}
-                <div style={{ padding: "18px 20px 22px", display: "flex", flexDirection: "column", flexGrow: 1 }}>
+                <div style={{ padding: isMobile ? "14px 14px 18px" : "18px 20px 22px", display: "flex", flexDirection: "column", flexGrow: 1 }}>
                   {/* Category & Price */}
                   <div
                     style={{
@@ -1187,9 +1227,11 @@ export default function CollectionPage() {
         style={{
           background: "#1C1B19",
           color: "#EEEAE3",
-          padding: "80px 48px",
+          padding: isMobile ? "44px 16px" : "80px 48px",
           position: "relative",
           overflow: "hidden",
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
         <div
@@ -1197,11 +1239,11 @@ export default function CollectionPage() {
             maxWidth: 1100,
             margin: "0 auto",
             display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "flex-start" : "center",
             justifyContent: "space-between",
             flexWrap: "wrap",
-            gap: 40,
+            gap: isMobile ? 24 : 40,
             position: "relative",
             zIndex: 2,
           }}
@@ -1214,12 +1256,12 @@ export default function CollectionPage() {
                   style={{
                     display: "inline-block",
                     fontFamily: "'Inter Tight', sans-serif",
-                    fontSize: 11,
+                    fontSize: isMobile ? 10 : 11,
                     fontWeight: 600,
                     letterSpacing: "2.5px",
                     textTransform: "uppercase",
                     color: GLOW_COLOR,
-                    marginBottom: 12,
+                    marginBottom: 10,
                   }}
                 >
                   ADMIN GENERATIVE TRY-ON ENGINE
@@ -1227,12 +1269,12 @@ export default function CollectionPage() {
                 <h2
                   style={{
                     fontFamily: "'Inter Tight', sans-serif",
-                    fontSize: "clamp(32px, 4.5vw, 54px)",
+                    fontSize: isMobile ? "clamp(24px, 6vw, 36px)" : "clamp(32px, 4.5vw, 54px)",
                     fontWeight: 600,
                     lineHeight: 1.05,
-                    letterSpacing: "-1.8px",
+                    letterSpacing: "-1.2px",
                     color: "#FFFFFF",
-                    marginBottom: 16,
+                    marginBottom: 12,
                   }}
                 >
                   Drape any garment on the model in real time.
@@ -1240,8 +1282,8 @@ export default function CollectionPage() {
                 <p
                   style={{
                     fontFamily: "'Inter Tight', sans-serif",
-                    fontSize: 15,
-                    lineHeight: 1.6,
+                    fontSize: isMobile ? 13 : 15,
+                    lineHeight: 1.55,
                     color: "rgba(238,234,227,0.7)",
                   }}
                 >
@@ -1249,21 +1291,24 @@ export default function CollectionPage() {
                 </p>
               </div>
 
-              <div>
+              <div style={{ width: isMobile ? "100%" : "auto" }}>
                 <Link
                   to="/tryon"
                   style={{
-                    padding: "18px 36px",
+                    padding: isMobile ? "14px 24px" : "18px 36px",
                     background: GLOW_COLOR,
                     color: "#1C1B19",
                     fontFamily: "'Inter Tight', sans-serif",
-                    fontSize: 15,
+                    fontSize: isMobile ? 13 : 15,
                     fontWeight: 700,
                     letterSpacing: "0.5px",
                     textDecoration: "none",
-                    display: "inline-flex",
+                    display: "flex",
                     alignItems: "center",
-                    gap: 10,
+                    justifyContent: "center",
+                    gap: 8,
+                    width: isMobile ? "100%" : "auto",
+                    boxSizing: "border-box",
                     transition: "transform 0.2s ease, box-shadow 0.2s ease",
                   }}
                   onMouseEnter={(e) => {
@@ -1288,12 +1333,12 @@ export default function CollectionPage() {
                   style={{
                     display: "inline-block",
                     fontFamily: "'Inter Tight', sans-serif",
-                    fontSize: 11,
+                    fontSize: isMobile ? 10 : 11,
                     fontWeight: 600,
                     letterSpacing: "2.5px",
                     textTransform: "uppercase",
                     color: GLOW_COLOR,
-                    marginBottom: 12,
+                    marginBottom: 10,
                   }}
                 >
                   READY-TO-WEAR ARCHIVE
@@ -1301,12 +1346,12 @@ export default function CollectionPage() {
                 <h2
                   style={{
                     fontFamily: "'Inter Tight', sans-serif",
-                    fontSize: "clamp(32px, 4.5vw, 54px)",
+                    fontSize: isMobile ? "clamp(24px, 6vw, 36px)" : "clamp(32px, 4.5vw, 54px)",
                     fontWeight: 600,
                     lineHeight: 1.05,
-                    letterSpacing: "-1.8px",
+                    letterSpacing: "-1.2px",
                     color: "#FFFFFF",
-                    marginBottom: 16,
+                    marginBottom: 12,
                   }}
                 >
                   Tactile craftsmanship and enduring cuts.
@@ -1314,8 +1359,8 @@ export default function CollectionPage() {
                 <p
                   style={{
                     fontFamily: "'Inter Tight', sans-serif",
-                    fontSize: 15,
-                    lineHeight: 1.6,
+                    fontSize: isMobile ? 13 : 15,
+                    lineHeight: 1.55,
                     color: "rgba(238,234,227,0.7)",
                   }}
                 >
@@ -1329,12 +1374,12 @@ export default function CollectionPage() {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   style={{
-                    padding: "16px 32px",
+                    padding: isMobile ? "12px 24px" : "16px 32px",
                     background: "transparent",
                     color: GLOW_COLOR,
                     border: `1px solid ${GLOW_COLOR}`,
                     fontFamily: "'Inter Tight', sans-serif",
-                    fontSize: 14,
+                    fontSize: isMobile ? 13 : 14,
                     fontWeight: 700,
                     letterSpacing: "0.5px",
                     cursor: "pointer",
@@ -1359,7 +1404,7 @@ export default function CollectionPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              padding: 24,
+              padding: isMobile ? 12 : 24,
             }}
           >
             {/* Backdrop */}
@@ -1386,14 +1431,14 @@ export default function CollectionPage() {
                 position: "relative",
                 zIndex: 2,
                 width: "100%",
-                maxWidth: 880,
+                maxWidth: isMobile ? 420 : 880,
                 maxHeight: "90vh",
                 overflowY: "auto",
                 background: "#EEEAE3",
                 border: "1px solid rgba(84,84,84,0.2)",
                 boxShadow: "0 24px 60px rgba(0,0,0,0.3)",
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(320px, 1fr))",
               }}
             >
               {/* Close Button */}
@@ -1460,7 +1505,7 @@ export default function CollectionPage() {
               </div>
 
               {/* Modal Information */}
-              <div style={{ padding: "36px 32px", display: "flex", flexDirection: "column" }}>
+              <div style={{ padding: isMobile ? "20px 18px" : "36px 32px", display: "flex", flexDirection: "column" }}>
                 <div
                   style={{
                     fontFamily: "'Inter Tight', sans-serif",
@@ -1633,20 +1678,23 @@ export default function CollectionPage() {
       {/* Editorial Footer */}
       <footer
         style={{
-          padding: "50px 48px",
+          padding: isMobile ? "28px 16px" : "50px 48px",
           background: "#EEEAE3",
           borderTop: "1px solid rgba(84, 84, 84, 0.12)",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: isMobile ? "center" : "space-between",
           alignItems: "center",
-          flexWrap: "wrap",
-          gap: 20,
+          flexDirection: isMobile ? "column" : "row",
+          textAlign: isMobile ? "center" : "left",
+          gap: isMobile ? 12 : 20,
           fontFamily: "'Inter Tight', sans-serif",
-          fontSize: 13,
+          fontSize: isMobile ? 12 : 13,
           color: "rgba(84,84,84,0.7)",
+          width: "100%",
+          boxSizing: "border-box",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
           <span style={{ fontWeight: 600, color: "#1C1B19" }}>FITTING ROOM STUDIO</span>
           <span>•</span>
           <span>Bags, Garments & Editorial Archive</span>

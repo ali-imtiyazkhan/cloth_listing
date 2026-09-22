@@ -83,21 +83,6 @@ export const COLLECTION_ITEMS: GarmentItem[] = [
     colors: ["#5D7A98", "#8FA9C4"],
     imageUrl: "https://images.unsplash.com/photo-1604176354204-9268737828e4?w=800&auto=format&fit=crop&q=80",
   },
-  {
-    id: "jns-06",
-    name: "Front-Pleat Tailored Denim",
-    category: "jeans",
-    categoryLabel: "Jeans",
-    price: 160,
-    badge: "HYBRID",
-    code: "REF // 06-JNS",
-    fabric: "11oz Light Indigo Denim Twill",
-    fit: "Tailored Pleated Straight",
-    description: "The elegance of a bespoke trouser fused with indigo denim. Features twin inward pleats, extended waist tab, and clean front press line.",
-    colors: ["#3D566E", "#5B748C"],
-    imageUrl: "https://images.unsplash.com/photo-1514327605112-b887c0e61c0a?w=800&auto=format&fit=crop&q=80",
-  },
-
   // --- SHIRTS ---
   {
     id: "shr-01",
@@ -186,21 +171,6 @@ export const COLLECTION_ITEMS: GarmentItem[] = [
   },
 
   // --- T-SHIRTS ---
-  {
-    id: "tsh-01",
-    name: "Atelier 320gsm Heavy Boxy Tee",
-    category: "tshirt",
-    categoryLabel: "T-Shirts",
-    price: 75,
-    badge: "HEAVY 320GSM",
-    code: "REF // 01-TSH",
-    fabric: "320gsm Combed Organic Cotton Jersey",
-    fit: "Boxy Drop-Shoulder",
-    description: "Substantial heavyweight drape that holds an architectural boxy form. Thick 1-inch seamless ribbed collar that will never bacon or warp.",
-    colors: ["#EEEAE3", "#1C1B19"],
-    imageUrl: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
-    isNew: true,
-  },
   {
     id: "tsh-02",
     name: "Washed Carbon Graphic Tee",
