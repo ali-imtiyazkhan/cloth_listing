@@ -2,13 +2,11 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import SerifGlowWord from "../components/SerifGlowWord";
 import { asset, TEXT_COLOR } from "../lib/constants";
+import { useIsMobile } from "../lib/useMediaQuery";
 
 const EASE_BACK = [0.34, 1.56, 0.64, 1] as const;
 
-const ORBIT_RADIUS = 260;
-const BAG_HALF = 80;
-const LABEL_GAP = 8;
-const LABEL_DIST = BAG_HALF + LABEL_GAP; // 88
+const ORBIT_RADIUS_DESKTOP = 260;
 
 const BAGS = [
 	{ img: "baggy-1.png", baseAngle: 270, label: "(01)" },
@@ -23,6 +21,12 @@ export default function PerfectMatch() {
 	// Continuous rotation engine.
 	const [angle, setAngle] = useState(0);
 	const [paused, setPaused] = useState(false);
+	const isMobile = useIsMobile();
+	const bagSize = isMobile ? 64 : 160;
+	const BAG_HALF = bagSize / 2;
+	const ORBIT_RADIUS = isMobile ? 120 : ORBIT_RADIUS_DESKTOP;
+	const LABEL_GAP = isMobile ? 6 : 8;
+	const LABEL_DIST = BAG_HALF + LABEL_GAP;
 
 	useEffect(() => {
 		if (paused) return;
@@ -41,7 +45,7 @@ export default function PerfectMatch() {
 				position: "relative",
 				background: "#f7f7f7",
 				minHeight: "100vh",
-				paddingBottom: 80,
+				paddingBottom: isMobile ? 40 : 80,
 				fontFamily: "'Inter Tight', sans-serif",
 				overflow: "visible",
 			}}
@@ -52,7 +56,7 @@ export default function PerfectMatch() {
 				alt=""
 				style={{
 					position: "absolute",
-					top: -188,
+					top: isMobile ? -60 : -188,
 					left: 0,
 					right: 0,
 					width: "100%",
@@ -73,7 +77,7 @@ export default function PerfectMatch() {
 				style={{
 					position: "relative",
 					textAlign: "center",
-					paddingTop: 120,
+					paddingTop: isMobile ? 70 : 120,
 					zIndex: 60,
 				}}
 			>
@@ -82,9 +86,9 @@ export default function PerfectMatch() {
 						key={line}
 						style={{
 							fontFamily: "'Inter Tight', sans-serif",
-							fontSize: 11,
+							fontSize: isMobile ? 10 : 11,
 							fontWeight: 500,
-							letterSpacing: "2.5px",
+							letterSpacing: isMobile ? "2px" : "2.5px",
 							lineHeight: 1.8,
 							color: "rgba(84,84,84,0.55)",
 						}}
@@ -99,9 +103,9 @@ export default function PerfectMatch() {
 				style={{
 					position: "relative",
 					width: "100%",
-					height: 640,
+					height: isMobile ? 320 : 640,
 					zIndex: 60,
-					marginTop: 20,
+					marginTop: isMobile ? 10 : 20,
 				}}
 			>
 				{/* Center title */}
@@ -125,10 +129,10 @@ export default function PerfectMatch() {
 						style={{
 							display: "block",
 							fontFamily: "'Inter Tight', sans-serif",
-							fontSize: 64,
+							fontSize: isMobile ? 30 : 64,
 							fontWeight: 700,
 							lineHeight: 1,
-							letterSpacing: "-2px",
+							letterSpacing: isMobile ? "-1px" : "-2px",
 							color: TEXT_COLOR,
 						}}
 					>
@@ -138,9 +142,9 @@ export default function PerfectMatch() {
 						<span
 							style={{
 								fontFamily: "'Inter Tight', sans-serif",
-								fontSize: 64,
+								fontSize: isMobile ? 30 : 64,
 								fontWeight: 700,
-								letterSpacing: "-2px",
+								letterSpacing: isMobile ? "-1px" : "-2px",
 								color: TEXT_COLOR,
 							}}
 						>
@@ -148,10 +152,10 @@ export default function PerfectMatch() {
 						</span>
 						<SerifGlowWord
 							word="match"
-							fontSize={64}
-							lineHeight={64}
-							letterSpacing={-2}
-							strokeWidth={14}
+							fontSize={isMobile ? 30 : 64}
+							lineHeight={isMobile ? 30 : 64}
+							letterSpacing={isMobile ? -1 : -2}
+							strokeWidth={isMobile ? 7 : 14}
 							inView
 							delay={0.5}
 						/>
@@ -204,8 +208,8 @@ export default function PerfectMatch() {
 										onMouseLeave={() => setPaused(false)}
 										style={{
 											position: "relative",
-											width: 160,
-											height: 160,
+											width: bagSize,
+											height: bagSize,
 											cursor: "pointer",
 										}}
 									>
@@ -213,8 +217,8 @@ export default function PerfectMatch() {
 											src={asset(bag.img)}
 											alt=""
 											style={{
-												width: 160,
-												height: 160,
+												width: bagSize,
+												height: bagSize,
 												objectFit: "contain",
 												display: "block",
 											}}
@@ -231,7 +235,7 @@ export default function PerfectMatch() {
 										top: 0,
 										transform: `translate(${labelX}px, ${labelY}px) translate(-50%, -50%)`,
 										fontFamily: "'Instrument Serif', serif",
-										fontSize: 16,
+										fontSize: isMobile ? 11 : 16,
 										fontWeight: 400,
 										color: "rgba(84,84,84,0.65)",
 										letterSpacing: "-0.5px",
@@ -253,10 +257,10 @@ export default function PerfectMatch() {
 				style={{
 					display: "flex",
 					alignItems: "flex-start",
-					gap: 16,
-					maxWidth: 380,
-					margin: "50px auto 0",
-					padding: "0 40px",
+					gap: isMobile ? 12 : 16,
+					maxWidth: isMobile ? 320 : 380,
+					margin: isMobile ? "20px auto 0" : "50px auto 0",
+					padding: isMobile ? "0 16px" : "0 40px",
 					position: "relative",
 					zIndex: 5,
 				}}
@@ -269,11 +273,11 @@ export default function PerfectMatch() {
 					viewport={{ once: true, margin: "-60px" }}
 					transition={{ duration: 0.5, ease: EASE_BACK }}
 					style={{
-						width: 32,
-						height: 32,
+						width: isMobile ? 24 : 32,
+						height: isMobile ? 24 : 32,
 						objectFit: "contain",
 						flexShrink: 0,
-						marginTop: 12,
+						marginTop: isMobile ? 8 : 12,
 					}}
 				/>
 				<motion.p
@@ -283,12 +287,12 @@ export default function PerfectMatch() {
 					transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
 					style={{
 						fontFamily: "'Inter Tight', sans-serif",
-						fontSize: 13,
+						fontSize: isMobile ? 12 : 13,
 						fontWeight: 400,
-						lineHeight: 1.75,
+						lineHeight: 1.65,
 						color: "rgba(84,84,84,0.75)",
 						textAlign: "justify",
-						marginTop: 10,
+						marginTop: isMobile ? 6 : 10,
 					}}
 				>
 					We believe a bag is more than an accessory — It's a companion to your

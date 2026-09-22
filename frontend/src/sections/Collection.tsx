@@ -6,13 +6,13 @@ import {
   useTransform,
 } from "framer-motion";
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import SerifGlowWord from "../components/SerifGlowWord";
 import { asset } from "../lib/constants";
+import { useIsMobile } from "../lib/useMediaQuery";
 
-const ENV_W = 480;
-const ENV_H = 340;
-const FLAP_H = 200;
+const ENV_W_DESKTOP = 480;
+const ENV_H_DESKTOP = 340;
+const FLAP_H_DESKTOP = 200;
 
 const PHOTO_NAMES = ["Terra", "Love Bag", "Amélie", "Belle", "Mira", "Adele"];
 const CARD_Z = [2, 4, 6, 6, 4, 2];
@@ -35,25 +35,46 @@ const END: Array<[number, number, number]> = [
   [625, 0, 0],
 ];
 
+const PEEK_MOBILE: Array<[number, number, number]> = [
+  [-45, -15, -12],
+  [-20, -30, -6],
+  [-8, -40, -2],
+  [10, -38, 3],
+  [28, -30, 7],
+  [48, -15, 12],
+];
+
+const END_MOBILE: Array<[number, number, number]> = [
+  [-110, -90, -4],
+  [0, -90, 0],
+  [110, -90, 4],
+  [-110, 75, -4],
+  [0, 75, 0],
+  [110, 75, 4],
+];
+
 const OFF = [0, 0.015, 0.03, 0.045, 0.06, 0.075];
 
 function PhotoCard({
   index,
   scrollYProgress,
   cardsOut,
+  ...rest
 }: {
   index: number;
   scrollYProgress: MotionValue<number>;
   cardsOut: boolean;
+  isMobile: boolean;
 }) {
+  const { isMobile } = rest;
   const off = OFF[index];
   const a0 = 0.3 + off;
   const a1 = 0.5 + off;
   const b0 = 0.55 + off;
   const b1 = 0.78 + off;
 
-  const [peekX, peekY, peekRot] = PEEK[index];
-  const [endX, endY, endRot] = END[index];
+  const [peekX, peekY, peekRot] = isMobile ? PEEK_MOBILE[index] : PEEK[index];
+  const [endX, endY, endRot] = isMobile ? END_MOBILE[index] : END[index];
 
   const x = useTransform(
     scrollYProgress,
@@ -78,9 +99,9 @@ function PhotoCard({
       transition={{ duration: 0.5, ease: "easeInOut" }}
       style={{
         position: "absolute",
-        left: -90,
-        top: -90,
-        width: 180,
+        left: isMobile ? -50 : -90,
+        top: isMobile ? -50 : -90,
+        width: isMobile ? 100 : 180,
         zIndex: CARD_Z[index],
         pointerEvents: "auto",
         cursor: "pointer",
@@ -115,18 +136,18 @@ function PhotoCard({
         }}
         style={{
           position: "absolute",
-          top: "calc(100% + 18px)",
+          top: isMobile ? "calc(100% + 8px)" : "calc(100% + 18px)",
           left: "50%",
           transform: "translateX(-50%)",
           textAlign: "center",
-          width: 200,
+          width: isMobile ? 110 : 200,
           pointerEvents: "none",
         }}
       >
         <div
           style={{
             fontFamily: "'Inter Tight', sans-serif",
-            fontSize: 18,
+            fontSize: isMobile ? 12 : 18,
             fontWeight: 500,
             letterSpacing: "-0.3px",
             lineHeight: 1.2,
@@ -137,9 +158,9 @@ function PhotoCard({
         </div>
         <div
           style={{
-            marginTop: 4,
+            marginTop: isMobile ? 2 : 4,
             fontFamily: "'Inter Tight', sans-serif",
-            fontSize: 14,
+            fontSize: isMobile ? 11 : 14,
             fontWeight: 400,
             color: "rgba(255,255,255,0.7)",
           }}
@@ -153,6 +174,11 @@ function PhotoCard({
 
 export default function Collection() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  const ENV_W = isMobile ? 260 : ENV_W_DESKTOP;
+  const ENV_H = isMobile ? 180 : ENV_H_DESKTOP;
+  const FLAP_H = isMobile ? 110 : FLAP_H_DESKTOP;
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
@@ -161,7 +187,7 @@ export default function Collection() {
   const envelopeY = useTransform(
     scrollYProgress,
     [0, 0.18, 0.45, 0.7, 1],
-    [145, 20, 90, 600, 900],
+    isMobile ? [80, 10, 50, 300, 480] : [145, 20, 90, 600, 900],
   );
   const envelopeIn = useTransform(scrollYProgress, [0.6, 0.75], [1, 0]);
   const flapRotate = useTransform(scrollYProgress, [0.2, 0.45], [180, 0]);
@@ -225,7 +251,7 @@ export default function Collection() {
             <span
               style={{
                 fontFamily: "'Inter Tight', sans-serif",
-                fontSize: 72,
+                fontSize: isMobile ? 36 : 72,
                 fontWeight: 500,
                 lineHeight: 1,
                 letterSpacing: "-3px",
@@ -236,10 +262,10 @@ export default function Collection() {
             </span>
             <SerifGlowWord
               word="new"
-              fontSize={78}
-              lineHeight={78}
-              letterSpacing={-3}
-              strokeWidth={16}
+              fontSize={isMobile ? 40 : 78}
+              lineHeight={isMobile ? 40 : 78}
+              letterSpacing={isMobile ? -1.5 : -3}
+              strokeWidth={isMobile ? 8 : 16}
               italic
               inView
               delay={0.5}
@@ -249,10 +275,10 @@ export default function Collection() {
             style={{
               marginTop: 4,
               fontFamily: "'Inter Tight', sans-serif",
-              fontSize: 72,
+              fontSize: isMobile ? 36 : 72,
               fontWeight: 500,
               lineHeight: 1,
-              letterSpacing: "-3px",
+              letterSpacing: isMobile ? "-1.5px" : "-3px",
               color: "#FFFFFF",
             }}
           >
@@ -285,8 +311,8 @@ export default function Collection() {
             left: "50%",
             width: ENV_W,
             height: ENV_H,
-            marginLeft: -240,
-            marginTop: -170,
+            marginLeft: isMobile ? -130 : -240,
+            marginTop: isMobile ? -90 : -170,
             overflow: "visible",
             y: envelopeY,
           }}
@@ -396,112 +422,12 @@ export default function Collection() {
                 index={i}
                 scrollYProgress={scrollYProgress}
                 cardsOut={cardsOut}
+                isMobile={isMobile}
               />
             ))}
           </motion.div>
         </motion.div>
       </div>
-
-      <motion.div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: "80px 60px 120px",
-          background: "linear-gradient(180deg, transparent 0%, #111111 50%)",
-          pointerEvents: "none",
-        }}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: "-200px" }}
-        transition={{ duration: 1, delay: 1.5 }}
-      >
-        <div style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          pointerEvents: "auto",
-        }}>
-          <div style={{
-            textAlign: "center",
-            marginBottom: 48,
-          }}>
-            <span style={{
-              display: "inline-block",
-              fontFamily: "'Inter Tight', sans-serif",
-              fontSize: 11,
-              fontWeight: 500,
-              letterSpacing: "3px",
-              color: "rgba(255,255,255,0.4)",
-              textTransform: "uppercase",
-              marginBottom: 16,
-            }}>
-              Shop by Category
-            </span>
-            <h2 style={{
-              fontFamily: "'Inter Tight', sans-serif",
-              fontSize: 48,
-              fontWeight: 700,
-              lineHeight: 1.1,
-              letterSpacing: "-2px",
-              color: "#FFFFFF",
-            }}>
-              Explore Our
-              <br />
-              <span style={{ color: "#EAFE79" }}>Range</span>
-            </h2>
-          </div>
-
-          <div style={{
-            marginTop: 60,
-            textAlign: "center",
-          }}>
-            <Link
-              to="/tryon"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "18px 48px",
-                background: "#EAFE79",
-                border: "1px solid #EAFE79",
-                borderRadius: 0,
-                color: "#111111",
-                fontFamily: "'Inter Tight', sans-serif",
-                fontSize: 14,
-                fontWeight: 600,
-                letterSpacing: "1px",
-                textTransform: "uppercase",
-                textDecoration: "none",
-                transition: "background 0.2s, color 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#111111";
-                e.currentTarget.style.color = "#EAFE79";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#EAFE79";
-                e.currentTarget.style.color = "#111111";
-              }}
-            >
-              Open Virtual Try-On
-              <span style={{
-                display: "inline-flex",
-                width: 20,
-                height: 20,
-                background: "#111111",
-                color: "#EAFE79",
-                borderRadius: "50%",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 12,
-              }}>
-                →
-              </span>
-            </Link>
-          </div>
-        </div>
-      </motion.div>
     </section>
   );
 }

@@ -5,21 +5,20 @@ import SerifGlowWord from "../components/SerifGlowWord";
 import AdminModal from "../components/AdminModal";
 import { useAdmin } from "../lib/adminAuth";
 import { asset, TEXT_COLOR, GLOW_COLOR } from "../lib/constants";
+import { useIsMobile } from "../lib/useMediaQuery";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 const EASE_BACK = [0.34, 1.56, 0.64, 1] as const;
 const EASE_SMOOTH = [0.22, 1, 0.36, 1] as const;
 
-// Inter Tight display headline type — shared by "Bags crafted", "to move with"
-// and "story".
-const HEADLINE_TYPE = {
+const getHeadlineType = (isMobile: boolean) => ({
 	fontFamily: "'Inter Tight', sans-serif",
-	fontSize: "87.999px",
+	fontSize: isMobile ? "clamp(28px, 8.5vw, 42px)" : "clamp(36px, 8vw, 88px)",
 	fontWeight: 500,
-	lineHeight: "80px",
-	letterSpacing: "-3.52px",
+	lineHeight: isMobile ? "clamp(28px, 8.5vw, 42px)" : "clamp(34px, 7.5vw, 80px)",
+	letterSpacing: isMobile ? "-1.5px" : "-3.52px",
 	color: TEXT_COLOR,
-};
+});
 
 /** A bottom-left polaroid thumbnail with a lift-on-hover photo. */
 function PolaroidThumb({
@@ -108,6 +107,9 @@ function PolaroidThumb({
 export default function Hero() {
 	const { isAdmin } = useAdmin();
 	const [adminModalOpen, setAdminModalOpen] = useState(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const isMobile = useIsMobile();
+	const headlineType = getHeadlineType(isMobile);
 
 	return (
 		<div
@@ -134,12 +136,14 @@ export default function Hero() {
 					left: 0,
 					right: 0,
 					zIndex: 50,
-					padding: "20px 32px",
-					background: "transparent",
+					padding: isMobile ? "14px 16px" : "20px 32px",
+					background: mobileMenuOpen ? "rgba(238,234,227,0.98)" : "transparent",
+					backdropFilter: mobileMenuOpen ? "blur(12px)" : "none",
 					display: "flex",
 					justifyContent: "flex-end",
 					alignItems: "center",
-					gap: 32,
+					gap: isMobile ? 12 : 32,
+					transition: "background 0.3s ease",
 				}}
 			>
 				<Link
@@ -153,12 +157,13 @@ export default function Hero() {
 						opacity: 0.6,
 						transition: "opacity 0.2s",
 					}}
-					onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
-					onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+					onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+					onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}
 				>
 					Collection
 				</Link>
 				<Link
+					className="hide-mobile"
 					to="/favorites"
 					style={{
 						fontFamily: "'Inter Tight', sans-serif",
@@ -169,12 +174,13 @@ export default function Hero() {
 						opacity: 0.6,
 						transition: "opacity 0.2s",
 					}}
-					onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
-					onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+					onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+					onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}
 				>
 					Favorites
 				</Link>
 				<Link
+					className="hide-mobile"
 					to="/cart"
 					style={{
 						fontFamily: "'Inter Tight', sans-serif",
@@ -185,8 +191,8 @@ export default function Hero() {
 						opacity: 0.6,
 						transition: "opacity 0.2s",
 					}}
-					onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
-					onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
+					onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+					onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}
 				>
 					Cart (0)
 				</Link>
@@ -201,7 +207,7 @@ export default function Hero() {
 								fontWeight: 600,
 								color: "#1C1B19",
 								textDecoration: "none",
-								padding: "10px 20px",
+								padding: isMobile ? "8px 14px" : "10px 20px",
 								background: GLOW_COLOR,
 								borderRadius: 0,
 								transition: "background 0.2s, color 0.2s",
@@ -247,8 +253,8 @@ export default function Hero() {
 							textDecoration: "underline",
 							padding: 0,
 						}}
-						onMouseEnter={(e) => e.currentTarget.style.color = "#1C1B19"}
-						onMouseLeave={(e) => e.currentTarget.style.color = "rgba(84,84,84,0.6)"}
+						onMouseEnter={(e) => (e.currentTarget.style.color = "#1C1B19")}
+						onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(84,84,84,0.6)")}
 					>
 						Admin
 					</button>
@@ -256,6 +262,7 @@ export default function Hero() {
 				<button
 					type="button"
 					aria-label="Menu"
+					onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
 					className="transition-opacity duration-200 hover:opacity-70"
 					style={{
 						background: "none",
@@ -266,17 +273,136 @@ export default function Hero() {
 						alignItems: "center",
 					}}
 				>
-					<img src={asset("burger.svg")} alt="" width={42} height={30} />
+					<img src={asset("burger.svg")} alt="" width={isMobile ? 32 : 42} height={isMobile ? 24 : 30} />
 				</button>
 			</nav>
+
+			{/* Mobile Menu Drawer */}
+			{mobileMenuOpen && (
+				<div
+					style={{
+						position: "fixed",
+						top: 56,
+						left: 0,
+						right: 0,
+						background: "rgba(238,234,227,0.98)",
+						backdropFilter: "blur(16px)",
+						borderBottom: "1px solid rgba(0,0,0,0.08)",
+						padding: "20px 24px 28px",
+						zIndex: 49,
+						display: "flex",
+						flexDirection: "column",
+						gap: 16,
+						boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+					}}
+				>
+					<div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+						<span
+							style={{
+								fontSize: 10,
+								fontWeight: 600,
+								letterSpacing: "2px",
+								textTransform: "uppercase",
+								color: "rgba(84,84,84,0.5)",
+							}}
+						>
+							Explore Collection
+						</span>
+						<Link
+							to="/collection"
+							onClick={() => setMobileMenuOpen(false)}
+							style={{
+								fontFamily: "'Inter Tight', sans-serif",
+								fontSize: 18,
+								fontWeight: 600,
+								color: TEXT_COLOR,
+								textDecoration: "none",
+							}}
+						>
+							All Pieces →
+						</Link>
+						<div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
+							{[
+								{ label: "Jeans", path: "/collection/jeans" },
+								{ label: "Shirts", path: "/collection/shirts" },
+								{ label: "T-Shirts", path: "/collection/tshirt" },
+								{ label: "Jackets", path: "/collection/jackets" },
+								{ label: "Trousers", path: "/collection/trousers" },
+							].map((cat) => (
+								<Link
+									key={cat.path}
+									to={cat.path}
+									onClick={() => setMobileMenuOpen(false)}
+									style={{
+										fontSize: 13,
+										fontWeight: 500,
+										color: TEXT_COLOR,
+										background: "rgba(0,0,0,0.05)",
+										padding: "6px 12px",
+										textDecoration: "none",
+									}}
+								>
+									{cat.label}
+								</Link>
+							))}
+						</div>
+					</div>
+
+					<div
+						style={{
+							marginTop: 12,
+							paddingTop: 16,
+							borderTop: "1px solid rgba(0,0,0,0.06)",
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "center",
+						}}
+					>
+						<button
+							onClick={() => {
+								setMobileMenuOpen(false);
+								setAdminModalOpen(true);
+							}}
+							style={{
+								fontSize: 13,
+								fontWeight: 600,
+								color: TEXT_COLOR,
+								background: "none",
+								border: "none",
+								padding: 0,
+								cursor: "pointer",
+								textDecoration: "underline",
+							}}
+						>
+							{isAdmin ? "Admin Settings" : "Admin Login"}
+						</button>
+						{isAdmin && (
+							<Link
+								to="/tryon"
+								onClick={() => setMobileMenuOpen(false)}
+								style={{
+									fontSize: 13,
+									fontWeight: 600,
+									color: "#1C1B19",
+									background: GLOW_COLOR,
+									padding: "8px 16px",
+									textDecoration: "none",
+								}}
+							>
+								✦ Virtual Try-On
+							</Link>
+						)}
+					</div>
+				</div>
+			)}
 
 			{/* Heading block */}
 			<div
 				style={{
 					position: "absolute",
-					top: 32,
-					left: 40,
-					maxWidth: 500,
+					top: isMobile ? 68 : 32,
+					left: isMobile ? 20 : 40,
+					maxWidth: isMobile ? "calc(100vw - 40px)" : 500,
 					zIndex: 10,
 				}}
 			>
@@ -284,7 +410,7 @@ export default function Hero() {
 					initial={{ opacity: 0, filter: "blur(14px)" }}
 					animate={{ opacity: 1, filter: "blur(0px)" }}
 					transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-					style={HEADLINE_TYPE}
+					style={headlineType}
 				>
 					Style crafted
 				</motion.div>
@@ -292,7 +418,7 @@ export default function Hero() {
 					initial={{ opacity: 0, filter: "blur(14px)" }}
 					animate={{ opacity: 1, filter: "blur(0px)" }}
 					transition={{ duration: 0.8, ease: "easeOut", delay: 0.28 }}
-					style={HEADLINE_TYPE}
+					style={headlineType}
 				>
 					for every you
 				</motion.div>
@@ -300,23 +426,23 @@ export default function Hero() {
 					style={{
 						display: "flex",
 						alignItems: "baseline",
-						gap: 12,
+						gap: isMobile ? 8 : 12,
 						marginTop: -2,
 					}}
 				>
 					<SerifGlowWord
 						word="shirts"
-						fontSize={94.969}
-						lineHeight={93.413}
-						letterSpacing={-3.799}
-						strokeWidth={20.55}
+						fontSize={isMobile ? 42 : 94.969}
+						lineHeight={isMobile ? 42 : 93.413}
+						letterSpacing={isMobile ? -1.8 : -3.799}
+						strokeWidth={isMobile ? 9 : 20.55}
 						delay={0.5}
 					/>
 					<motion.span
 						initial={{ opacity: 0, filter: "blur(12px)" }}
 						animate={{ opacity: 1, filter: "blur(0px)" }}
 						transition={{ duration: 0.7, ease: "easeOut", delay: 0.78 }}
-						style={{ ...HEADLINE_TYPE, display: "inline-block" }}
+						style={{ ...headlineType, display: "inline-block" }}
 					>
 						& more
 					</motion.span>
@@ -337,7 +463,7 @@ export default function Hero() {
 					right: 0,
 					marginLeft: "auto",
 					marginRight: "auto",
-					height: "100vh",
+					height: isMobile ? "70vh" : "100vh",
 					width: "auto",
 					objectFit: "contain",
 					objectPosition: "bottom center",
@@ -347,6 +473,7 @@ export default function Hero() {
 
 			{/* Sticks SVG flourish */}
 			<motion.img
+				className="hide-mobile"
 				src={asset("sticks.svg")}
 				alt=""
 				initial={{ opacity: 0, scale: 0, rotate: -180 }}
@@ -379,6 +506,7 @@ export default function Hero() {
 
 			{/* Smile sticker */}
 			<motion.img
+				className="hide-mobile"
 				src={asset("smile.png")}
 				alt=""
 				initial={{ opacity: 0, scale: 0.4, rotate: -40 }}
@@ -446,10 +574,10 @@ export default function Hero() {
 				}}
 				style={{
 					position: "absolute",
-					top: "35%",
-					left: "calc(50% - 5px)",
+					top: isMobile ? "28%" : "35%",
+					left: isMobile ? "calc(50% + 10px)" : "calc(50% - 5px)",
 					zIndex: 8,
-					width: 200,
+					width: isMobile ? 120 : 200,
 					transformPerspective: 500,
 					transformOrigin: "top center",
 				}}
@@ -489,10 +617,10 @@ export default function Hero() {
 				}}
 				style={{
 					position: "absolute",
-					bottom: "22%",
-					left: "calc(50% - 170px)",
+					bottom: isMobile ? "18%" : "22%",
+					left: isMobile ? "calc(50% - 110px)" : "calc(50% - 170px)",
 					zIndex: 9,
-					width: 150,
+					width: isMobile ? 100 : 150,
 					transformPerspective: 600,
 					transformOrigin: "top center",
 				}}
@@ -500,6 +628,7 @@ export default function Hero() {
 
 			{/* "style" sticker */}
 			<div
+				className="hide-mobile"
 				style={{
 					position: "absolute",
 					bottom: "calc(16% + 40px)",
@@ -521,6 +650,7 @@ export default function Hero() {
 
 			{/* Text-heart sticker */}
 			<motion.img
+				className="hide-mobile"
 				src={asset("text-heart.png")}
 				alt=""
 				initial={{ opacity: 0, scale: 0.5, rotate: 18 }}
@@ -537,6 +667,7 @@ export default function Hero() {
 
 			{/* Arrow */}
 			<motion.img
+				className="hide-mobile"
 				src={asset("arrow.svg")}
 				alt=""
 				initial={{ opacity: 0, x: 24, rotate: 20 }}
@@ -562,6 +693,7 @@ export default function Hero() {
 
 			{/* LOVE BAG label (right column) */}
 			<motion.div
+				className="hide-mobile"
 				initial={{ opacity: 0, x: 24, filter: "blur(6px)" }}
 				animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
 				transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
@@ -612,12 +744,12 @@ export default function Hero() {
 				style={{
 					position: "absolute",
 					bottom: 20,
-					right: 32,
+					right: isMobile ? 16 : 32,
 					zIndex: 4,
 					fontFamily: "'Instrument Serif', serif",
-					fontSize: "87.999px",
+					fontSize: isMobile ? "48px" : "87.999px",
 					fontWeight: 400,
-					lineHeight: "80px",
+					lineHeight: isMobile ? "44px" : "80px",
 					letterSpacing: "-3.52px",
 					color: "rgba(84,84,84,0.18)",
 				}}
@@ -627,6 +759,7 @@ export default function Hero() {
 
 			{/* Bottom-left polaroid thumbnails */}
 			<div
+				className="hide-mobile"
 				style={{
 					position: "absolute",
 					bottom: 24,
