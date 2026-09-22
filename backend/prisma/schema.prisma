@@ -20,3 +20,19 @@ model ClothItem {
 
   @@map("cloth_items")
 }
+
+model TryOnJob {
+  id              String   @id @default(uuid())
+  jobId           String   @unique @db.VarChar(255) @map("job_id")
+  clothImagePath  String   @db.VarChar(500) @map("cloth_image_path")
+  dummyImagePath  String?  @db.VarChar(500) @map("dummy_image_path")
+  status          String   @default("queued") @db.VarChar(20)
+  resultUrl       String?  @db.VarChar(500) @map("result_url")
+  errorMessage    String?  @db.Text @map("error_message")
+  retryCount      Int      @default(0) @map("retry_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  completedAt     DateTime? @map("completed_at")
+
+  @@map("tryon_jobs")
+}

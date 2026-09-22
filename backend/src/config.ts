@@ -6,7 +6,7 @@ export const config = {
   frontendOrigin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
   gemini: {
     apiKey: process.env.GEMINI_API_KEY || '',
-    imageModel: process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image',
+    imageModel: process.env.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-image',
   },
   kafka: {
     brokers: (process.env.KAFKA_BROKERS || 'localhost:9092').split(','),

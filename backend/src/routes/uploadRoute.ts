@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
+import rateLimit from 'express-rate-limit';
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import * as fs from 'fs/promises';
@@ -8,6 +9,7 @@ import { enqueueTryOnJob } from '../queue/producer.js';
 import { setJobStatus } from '../services/redisService.js';
 import { TryOnJob } from '../types.js';
 import { config } from '../config.js';
+import { prisma } from '../db/prisma.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOAD_DIR = path.resolve(__dirname, '../../uploads');
@@ -36,7 +38,15 @@ const upload = multer({
 
 const router = Router();
 
-router.post('/api/tryon', upload.single('cloth') as any, async (req: Request, res: Response) => {
+const tryonLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: 'Too many try-on requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+router.post('/api/tryon', tryonLimiter, upload.single('cloth') as any, async (req: Request, res: Response) => {
   const apiKey = req.headers['x-admin-key'] as string;
   const configuredKey = config.adminApiKey || process.env.ADMIN_API_KEY || 'your_admin_secret_key_here';
   
@@ -58,6 +68,14 @@ router.post('/api/tryon', upload.single('cloth') as any, async (req: Request, re
     clothImagePath,
     createdAt: new Date().toISOString(),
   };
+
+  await prisma.tryOnJob.create({
+    data: {
+      jobId,
+      clothImagePath,
+      status: 'queued',
+    },
+  });
 
   await setJobStatus(jobId, 'queued');
   await enqueueTryOnJob(job);
