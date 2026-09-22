@@ -13,6 +13,8 @@ export const config = {
     clientId: process.env.KAFKA_CLIENT_ID || 'tryon-app',
     topic: process.env.KAFKA_TOPIC || 'tryon-jobs',
     groupId: process.env.KAFKA_GROUP_ID || 'tryon-workers',
+    username: process.env.KAFKA_USERNAME || '',
+    password: process.env.KAFKA_PASSWORD || '',
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://localhost:6379',

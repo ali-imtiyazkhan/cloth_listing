@@ -1,9 +1,15 @@
 import { Kafka } from 'kafkajs';
 import { config } from '../config.js';
 
+const sasl = config.kafka.username && config.kafka.password
+  ? { mechanism: 'scram-sha-256' as const, username: config.kafka.username, password: config.kafka.password }
+  : undefined;
+
 export const kafka = new Kafka({
   clientId: config.kafka.clientId,
   brokers: config.kafka.brokers,
+  ssl: config.kafka.brokers.some(b => b.includes('upstash.io')),
+  sasl,
   retry: {
     initialRetryTime: 100,
     retries: 8,

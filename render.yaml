@@ -5,14 +5,6 @@ services:
     plan: free
     region: oregon
     ipAllowList: []
-  
-  # Redis
-  - type: redis
-    name: tryon-redis
-    plan: free
-    region: oregon
-    ipAllowList: []
-    maxmemoryPolicy: allkeys-lru
 
   # Backend Web Service
   - type: web
@@ -34,11 +26,9 @@ services:
           name: tryon-db
           property: connectionString
       - key: REDIS_URL
-        fromDatabase:
-          name: tryon-redis
-          property: connectionString
+        sync: false
       - key: FRONTEND_ORIGIN
-        value: https://your-frontend.vercel.app
+        value: https://jmd-enterprises.vercel.app
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_IMAGE_MODEL
@@ -85,9 +75,7 @@ services:
           name: tryon-db
           property: connectionString
       - key: REDIS_URL
-        fromDatabase:
-          name: tryon-redis
-          property: connectionString
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_IMAGE_MODEL
