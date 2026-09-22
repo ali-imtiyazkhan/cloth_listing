@@ -14,7 +14,7 @@ const ENV_W_DESKTOP = 480;
 const ENV_H_DESKTOP = 340;
 const FLAP_H_DESKTOP = 200;
 
-const PHOTO_NAMES = ["Terra", "Love Bag", "Amélie", "Belle", "Mira", "Adele"];
+const PHOTO_NAMES = ["Terra", "Selvedge", "Amélie", "Belle", "Mira", "Adele"];
 const CARD_Z = [2, 4, 6, 6, 4, 2];
 
 const PEEK: Array<[number, number, number]> = [
@@ -299,8 +299,8 @@ export default function Collection() {
               color: "rgba(255,255,255,0.45)",
             }}
           >
-            Crafted with care and designed to follow you from day to night, it
-            holds not only your essentials, but your stories
+            Crafted with care and premium fabrics to elevate your daily wear —
+            from refined shirts to iconic selvedge denim, tailored for life.
           </motion.p>
         </motion.div>
 

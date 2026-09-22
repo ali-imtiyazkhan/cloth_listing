@@ -295,9 +295,9 @@ export default function PerfectMatch() {
 						marginTop: isMobile ? 6 : 10,
 					}}
 				>
-					We believe a bag is more than an accessory — It's a companion to your
-					every moment. From the daily rush to quiet evenings, our pieces are
-					crafted to be effortlessly elegant, enduring, and distinctively yours.
+					We believe an outfit is more than just clothing — it's an expression
+					of your everyday style. From refined shirts to relaxed denim, our pieces
+					are tailored to be effortlessly elegant, enduring, and distinctively yours.
 				</motion.p>
 			</div>
 		</section>

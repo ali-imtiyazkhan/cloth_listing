@@ -403,7 +403,7 @@ export default function CollectionPage() {
                 color: "#1C1B19",
               }}
             >
-              READY-TO-WEAR ARCHIVE // 2026
+              READY-TO-WEAR ARCHIVE 2026
             </span>
           </div>
 

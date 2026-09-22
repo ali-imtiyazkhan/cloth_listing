@@ -716,7 +716,7 @@ export default function Hero() {
 							color: TEXT_COLOR,
 						}}
 					>
-						LOVE BAG
+						TIMELESS WEAR
 					</span>
 					<img src={asset("heart.svg")} alt="" width={13} height={13} />
 				</div>
@@ -731,8 +731,8 @@ export default function Hero() {
 						textAlign: "justify",
 					}}
 				>
-					Crafted with care and designed to follow you from day to night, it
-					holds not only your essentials, but your stories
+					Crafted with care and designed to follow you from day to night,
+					tailored to express your personal style through every silhouette
 				</p>
 			</motion.div>
 
