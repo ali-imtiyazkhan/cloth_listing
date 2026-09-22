@@ -20,4 +20,5 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL || 'postgresql://tryon:tryon@localhost:5432/tryon',
   outputDir: process.env.OUTPUT_DIR || './generated',
   dummyImagePath: process.env.DUMMY_IMAGE_PATH || './assets/dummy.png',
+  adminApiKey: process.env.ADMIN_API_KEY || 'your_admin_secret_key_here',
 };

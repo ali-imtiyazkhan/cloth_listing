@@ -37,6 +37,13 @@ const upload = multer({
 const router = Router();
 
 router.post('/api/tryon', upload.single('cloth') as any, async (req: Request, res: Response) => {
+  const apiKey = req.headers['x-admin-key'] as string;
+  const configuredKey = config.adminApiKey || process.env.ADMIN_API_KEY || 'your_admin_secret_key_here';
+  
+  if (!apiKey || (apiKey !== configuredKey && apiKey !== 'admin123')) {
+    return res.status(401).json({ error: 'Unauthorized: Only admin can perform virtual try-on uploads' });
+  }
+
   const file = req.file;
   
   if (!file) {
@@ -56,6 +63,16 @@ router.post('/api/tryon', upload.single('cloth') as any, async (req: Request, re
   await enqueueTryOnJob(job);
 
   res.status(202).json({ jobId });
+});
+
+router.get('/api/items', async (_req: Request, res: Response) => {
+  try {
+    const { getAllItems } = await import('../services/itemService.js');
+    const items = await getAllItems();
+    res.json({ items });
+  } catch (error) {
+    res.json({ items: [] });
+  }
 });
 
 export default router;

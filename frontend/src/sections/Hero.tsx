@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import SerifGlowWord from "../components/SerifGlowWord";
+import AdminModal from "../components/AdminModal";
+import { useAdmin } from "../lib/adminAuth";
 import { asset, TEXT_COLOR, GLOW_COLOR } from "../lib/constants";
 
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
@@ -104,6 +106,9 @@ function PolaroidThumb({
 }
 
 export default function Hero() {
+	const { isAdmin } = useAdmin();
+	const [adminModalOpen, setAdminModalOpen] = useState(false);
+
 	return (
 		<div
 			style={{
@@ -116,6 +121,11 @@ export default function Hero() {
 				fontFamily: "'Inter Tight', sans-serif",
 			}}
 		>
+			<AdminModal
+				isOpen={adminModalOpen}
+				onClose={() => setAdminModalOpen(false)}
+			/>
+
 			{/* Navbar */}
 			<nav
 				style={{
@@ -133,7 +143,7 @@ export default function Hero() {
 				}}
 			>
 				<Link
-					to="/"
+					to="/collection"
 					style={{
 						fontFamily: "'Inter Tight', sans-serif",
 						fontSize: 14,
@@ -146,7 +156,7 @@ export default function Hero() {
 					onMouseEnter={(e) => e.currentTarget.style.opacity = "1"}
 					onMouseLeave={(e) => e.currentTarget.style.opacity = "0.6"}
 				>
-					Catalog
+					Collection
 				</Link>
 				<Link
 					to="/favorites"
@@ -180,30 +190,69 @@ export default function Hero() {
 				>
 					Cart (0)
 				</Link>
-				<Link
-					to="/tryon"
-					style={{
-						fontFamily: "'Inter Tight', sans-serif",
-						fontSize: 14,
-						fontWeight: 600,
-						color: "#1C1B19",
-						textDecoration: "none",
-						padding: "10px 20px",
-						background: GLOW_COLOR,
-						borderRadius: 0,
-						transition: "background 0.2s, color 0.2s",
-					}}
-					onMouseEnter={(e) => {
-						e.currentTarget.style.background = "#1C1B19";
-						e.currentTarget.style.color = GLOW_COLOR;
-					}}
-					onMouseLeave={(e) => {
-						e.currentTarget.style.background = GLOW_COLOR;
-						e.currentTarget.style.color = "#1C1B19";
-					}}
-				>
-					Try On
-				</Link>
+
+				{isAdmin ? (
+					<>
+						<Link
+							to="/tryon"
+							style={{
+								fontFamily: "'Inter Tight', sans-serif",
+								fontSize: 14,
+								fontWeight: 600,
+								color: "#1C1B19",
+								textDecoration: "none",
+								padding: "10px 20px",
+								background: GLOW_COLOR,
+								borderRadius: 0,
+								transition: "background 0.2s, color 0.2s",
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background = "#1C1B19";
+								e.currentTarget.style.color = GLOW_COLOR;
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background = GLOW_COLOR;
+								e.currentTarget.style.color = "#1C1B19";
+							}}
+						>
+							✦ Try On
+						</Link>
+						<button
+							onClick={() => setAdminModalOpen(true)}
+							style={{
+								fontFamily: "'Inter Tight', sans-serif",
+								fontSize: 12,
+								fontWeight: 600,
+								padding: "6px 12px",
+								background: "#1C1B19",
+								color: GLOW_COLOR,
+								border: "none",
+								cursor: "pointer",
+							}}
+						>
+							Admin Active
+						</button>
+					</>
+				) : (
+					<button
+						onClick={() => setAdminModalOpen(true)}
+						style={{
+							fontFamily: "'Inter Tight', sans-serif",
+							fontSize: 13,
+							fontWeight: 500,
+							color: "rgba(84,84,84,0.6)",
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+							textDecoration: "underline",
+							padding: 0,
+						}}
+						onMouseEnter={(e) => e.currentTarget.style.color = "#1C1B19"}
+						onMouseLeave={(e) => e.currentTarget.style.color = "rgba(84,84,84,0.6)"}
+					>
+						Admin
+					</button>
+				)}
 				<button
 					type="button"
 					aria-label="Menu"

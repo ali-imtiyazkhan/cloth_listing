@@ -1,32 +1,65 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { submitTryOnJob, getJobStatus, resultImageUrl } from "../lib/api";
+import { useAdmin } from "../lib/adminAuth";
 import { TEXT_COLOR, GLOW_COLOR } from "../lib/constants";
+import { COLLECTION_ITEMS } from "../data/collectionData";
 
 const CATEGORIES = [
-  { id: "shirts", label: "Shirts", count: 24 },
-  { id: "jeans", label: "Jeans", count: 18 },
-  { id: "trousers", label: "Trousers", count: 15 },
-  { id: "lower", label: "Lower Garments", count: 12 },
-  { id: "undergarments", label: "Undergarments", count: 20 },
+  { id: "jeans", label: "Jeans", count: 6 },
+  { id: "shirts", label: "Shirts", count: 6 },
+  { id: "tshirt", label: "T-Shirts", count: 6 },
+  { id: "jackets", label: "Jackets", count: 3 },
+  { id: "trousers", label: "Trousers", count: 3 },
 ];
 
 export default function TryOn() {
+  const { isAdmin, login, logout } = useAdmin();
+  const [adminPasskey, setAdminPasskey] = useState("");
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+
   useEffect(() => {
     const style = document.createElement("style");
     style.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
     document.head.appendChild(style);
     return () => { document.head.removeChild(style); };
   }, []);
+  const location = useLocation();
   const [step, setStep] = useState<"upload" | "processing" | "result">("upload");
   const [clothFile, setClothFile] = useState<File | null>(null);
   const [clothPreview, setClothPreview] = useState<string | null>(null);
+  const [selectedGarmentName, setSelectedGarmentName] = useState<string | null>(null);
   const [status, setStatus] = useState<"queued" | "processing" | "done" | "failed">("queued");
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [polling, setPolling] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load preset garment if passed via location state
+  useEffect(() => {
+    const preset = location.state?.presetCloth;
+    if (preset?.imageUrl) {
+      loadGarmentFromUrl(preset.imageUrl, preset.name, preset.id);
+    }
+  }, [location.state]);
+
+  const loadGarmentFromUrl = async (url: string, name: string, id?: string) => {
+    setSelectedGarmentName(name);
+    setClothPreview(url);
+    setError(null);
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const file = new File([blob], `${id || "preset-cloth"}.png`, {
+        type: blob.type || "image/png",
+      });
+      setClothFile(file);
+    } catch {
+      // In case of strict external CORS, preview stays visible
+    }
+  };
 
   const handleFileSelect = (file: File | null) => {
     if (!file) return;
@@ -255,6 +288,21 @@ export default function TryOn() {
     </motion.div>
   );
 
+  const handleAdminUnlock = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminPasskey.trim()) {
+      setAuthError("Please enter the admin passkey");
+      return;
+    }
+    setAuthError(null);
+    setAuthLoading(true);
+    const success = await login(adminPasskey.trim());
+    setAuthLoading(false);
+    if (!success) {
+      setAuthError("Invalid admin passkey. (Default: your_admin_secret_key_here or admin123)");
+    }
+  };
+
   return (
     <div style={{
       minHeight: "100vh",
@@ -286,8 +334,8 @@ export default function TryOn() {
         }}>
           Fitting Room
         </Link>
-        <nav style={{ display: "flex", gap: 32 }}>
-          <Link to="/" style={{
+        <nav style={{ display: "flex", alignItems: "center", gap: 32 }}>
+          <Link to="/collection" style={{
             fontFamily: "'Inter Tight', sans-serif",
             fontSize: 14,
             fontWeight: 500,
@@ -296,20 +344,191 @@ export default function TryOn() {
           }}>
             Collection
           </Link>
-          <Link to="/tryon" style={{
-            fontFamily: "'Inter Tight', sans-serif",
-            fontSize: 14,
-            fontWeight: 600,
-            color: "#1C1B19",
-            textDecoration: "none",
-          }}>
-            Try On
-          </Link>
+          {isAdmin && (
+            <button
+              onClick={logout}
+              style={{
+                fontFamily: "'Inter Tight', sans-serif",
+                fontSize: 12,
+                fontWeight: 600,
+                padding: "6px 12px",
+                background: "#1C1B19",
+                color: GLOW_COLOR,
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Exit Admin Mode
+            </button>
+          )}
         </nav>
       </header>
 
       <main style={{ paddingTop: 100, paddingBottom: 80 }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 40px" }}>
+        {!isAdmin ? (
+          <div style={{
+            maxWidth: 540,
+            margin: "40px auto 60px",
+            padding: "48px 36px",
+            background: "#FFFFFF",
+            border: "1px solid rgba(84,84,84,0.18)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.04)",
+            textAlign: "center",
+          }}>
+            <div style={{
+              display: "inline-block",
+              padding: "4px 12px",
+              background: "rgba(181,72,42,0.1)",
+              color: "#B5482A",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "2px",
+              textTransform: "uppercase",
+              marginBottom: 20,
+              border: "1px solid rgba(181,72,42,0.3)",
+            }}>
+              RESTRICTED ACCESS
+            </div>
+
+            <h1 style={{
+              fontSize: 32,
+              fontWeight: 700,
+              lineHeight: 1.15,
+              letterSpacing: "-1px",
+              color: "#1C1B19",
+              marginBottom: 14,
+            }}>
+              Admin Access Required
+            </h1>
+
+            <p style={{
+              fontSize: 14.5,
+              lineHeight: 1.6,
+              color: "rgba(84,84,84,0.8)",
+              marginBottom: 32,
+            }}>
+              Virtual Try-On is currently reserved for administrators. Normal users can explore our ready-to-wear Collection and save favorites.
+            </p>
+
+            {authError && (
+              <div style={{
+                padding: "10px 14px",
+                background: "rgba(181,72,42,0.1)",
+                border: "1px solid rgba(181,72,42,0.3)",
+                color: "#B5482A",
+                fontSize: 13,
+                marginBottom: 20,
+                textAlign: "left",
+              }}>
+                {authError}
+              </div>
+            )}
+
+            <form onSubmit={handleAdminUnlock} style={{ marginBottom: 24, textAlign: "left" }}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{
+                  display: "block",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  marginBottom: 6,
+                  color: "#1C1B19",
+                }}>
+                  Admin Secret Key
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter admin passkey..."
+                  value={adminPasskey}
+                  onChange={(e) => setAdminPasskey(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "12px 14px",
+                    background: "#F8F6F1",
+                    border: "1px solid rgba(84,84,84,0.3)",
+                    fontSize: 14,
+                    outline: "none",
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18 }}>
+                <button
+                  type="button"
+                  onClick={() => setAdminPasskey("your_admin_secret_key_here")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    fontSize: 12,
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                    color: "rgba(84,84,84,0.7)",
+                  }}
+                >
+                  Quick-fill demo key
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                style={{
+                  width: "100%",
+                  padding: "14px",
+                  background: "#1C1B19",
+                  color: GLOW_COLOR,
+                  border: "none",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  letterSpacing: "1px",
+                  textTransform: "uppercase",
+                  cursor: authLoading ? "wait" : "pointer",
+                }}
+              >
+                {authLoading ? "Authenticating..." : "Unlock Try-On Studio"}
+              </button>
+            </form>
+
+            <Link
+              to="/collection"
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#1C1B19",
+                textDecoration: "underline",
+              }}
+            >
+              ← Back to Collection
+            </Link>
+          </div>
+        ) : (
+          <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 40px" }}>
+            {/* Admin status bar */}
+            <div style={{
+              padding: "10px 18px",
+              background: GLOW_COLOR,
+              border: "1px solid #1C1B19",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 36,
+              fontSize: 13,
+              fontWeight: 600,
+            }}>
+              <span>✦ Admin Mode Active: Try-On & Upload Privileges Enabled</span>
+              <button
+                onClick={logout}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+              >
+                Log Out
+              </button>
+            </div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -349,18 +568,56 @@ export default function TryOn() {
                 maxWidth: 520,
                 margin: "0 auto",
               }}>
-                Upload a garment photo. Our AI dresses a dummy model with your clothing
+                Upload a garment photo or choose a piece from our collection. Our AI dresses a dummy model with your clothing
                 preserving color, pattern, texture, and fit.
               </p>
             </div>
 
             {step === "upload" && (
               <>
+                {selectedGarmentName && (
+                  <div
+                    style={{
+                      maxWidth: 600,
+                      margin: "0 auto 24px",
+                      padding: "12px 20px",
+                      background: GLOW_COLOR,
+                      border: "1px solid #1C1B19",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      fontFamily: "'Inter Tight', sans-serif",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "#1C1B19",
+                    }}
+                  >
+                    <span>✦ Selected from Collection: {selectedGarmentName}</span>
+                    <button
+                      onClick={() => {
+                        setSelectedGarmentName(null);
+                        reset();
+                      }}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "#1C1B19",
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+
                 <div style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
                   gap: 40,
-                  marginBottom: 48,
+                  marginBottom: 32,
                 }}>
                   <UploadWell
                     label="Garment"
@@ -372,6 +629,62 @@ export default function TryOn() {
                   >
                     👕
                   </UploadWell>
+                </div>
+
+                {/* Quick select presets from collection */}
+                <div style={{ marginBottom: 40, textAlign: "center" }}>
+                  <div
+                    style={{
+                      fontFamily: "'Inter Tight', sans-serif",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      letterSpacing: "1.5px",
+                      textTransform: "uppercase",
+                      color: "rgba(84,84,84,0.7)",
+                      marginBottom: 12,
+                    }}
+                  >
+                    Or quick-test with a piece from the collection:
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: 10,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {COLLECTION_ITEMS.slice(0, 5).map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => loadGarmentFromUrl(item.imageUrl, item.name, item.id)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "6px 14px",
+                          background: selectedGarmentName === item.name ? "#1C1B19" : "#FFFFFF",
+                          color: selectedGarmentName === item.name ? GLOW_COLOR : "#1C1B19",
+                          border: selectedGarmentName === item.name
+                            ? "1px solid #1C1B19"
+                            : "1px solid rgba(84,84,84,0.2)",
+                          cursor: "pointer",
+                          fontFamily: "'Inter Tight', sans-serif",
+                          fontSize: 12,
+                          fontWeight: 500,
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          style={{ width: 22, height: 22, objectFit: "cover" }}
+                        />
+                        <span>{item.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {error && (
@@ -626,6 +939,7 @@ export default function TryOn() {
             )}
           </motion.div>
         </div>
+        )}
       </main>
 
       <footer style={{
